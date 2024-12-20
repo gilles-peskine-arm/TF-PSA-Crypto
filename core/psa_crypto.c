@@ -1686,8 +1686,12 @@ static psa_status_t psa_export_public_key_iop_abort_internal(psa_export_public_k
 
 uint32_t psa_export_public_key_iop_get_num_ops(psa_export_public_key_iop_t *operation)
 {
+#if defined(MBEDTLS_ECP_RESTARTABLE)
+    return operation->num_ops;
+#else
     (void) operation;
     return 0;
+#endif
 }
 
 psa_status_t psa_export_public_key_iop_setup(psa_export_public_key_iop_t *operation,
@@ -1706,6 +1710,8 @@ psa_status_t psa_export_public_key_iop_setup(psa_export_public_key_iop_t *operat
 
     /* We only support the builtin/Mbed TLS driver for now. */
     operation->id = PSA_CRYPTO_MBED_TLS_DRIVER_ID;
+
+    operation->num_ops = 0;
 
     status = psa_get_and_lock_transparent_key_slot_with_policy(key, &slot,
                                                                0,
@@ -1760,6 +1766,8 @@ psa_status_t psa_export_public_key_iop_complete(psa_export_public_key_iop_t *ope
 
     status = mbedtls_psa_ecp_export_public_key_iop_complete(&operation->ctx, data, data_size,
                                                             data_length);
+
+    operation->num_ops = mbedtls_psa_ecp_export_public_key_iop_get_num_ops(&operation->ctx);
 
     if (status != PSA_OPERATION_INCOMPLETE) {
         psa_export_public_key_iop_abort_internal(operation);
@@ -8143,7 +8151,7 @@ psa_status_t psa_key_agreement_iop_complete(
                                 key_len, key);
     }
 
-    if (status != PSA_SUCCESS && status != PSA_OPERATION_INCOMPLETE) {
+    if (status != PSA_OPERATION_INCOMPLETE) {
         operation->error_occurred = 1;
         psa_key_agreement_iop_abort_internal(operation);
     }
