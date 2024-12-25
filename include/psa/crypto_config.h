@@ -280,14 +280,14 @@
  * Uncomment a macro to enable alternate implementation of specific base
  * platform function
  */
-//#define MBEDTLS_PLATFORM_SETBUF_ALT
-//#define MBEDTLS_PLATFORM_EXIT_ALT
-//#define MBEDTLS_PLATFORM_TIME_ALT
-//#define MBEDTLS_PLATFORM_FPRINTF_ALT
-//#define MBEDTLS_PLATFORM_PRINTF_ALT
-//#define MBEDTLS_PLATFORM_SNPRINTF_ALT
-//#define MBEDTLS_PLATFORM_VSNPRINTF_ALT
-//#define MBEDTLS_PLATFORM_NV_SEED_ALT
+#define MBEDTLS_PLATFORM_SETBUF_ALT
+#define MBEDTLS_PLATFORM_EXIT_ALT
+#define MBEDTLS_PLATFORM_TIME_ALT
+#define MBEDTLS_PLATFORM_FPRINTF_ALT
+#define MBEDTLS_PLATFORM_PRINTF_ALT
+#define MBEDTLS_PLATFORM_SNPRINTF_ALT
+#define MBEDTLS_PLATFORM_VSNPRINTF_ALT
+#define MBEDTLS_PLATFORM_NV_SEED_ALT
 //#define MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT
 //#define MBEDTLS_PLATFORM_MS_TIME_ALT
 
@@ -364,7 +364,7 @@
  *
  * Enable this layer to allow use of alternative memory allocators.
  */
-//#define MBEDTLS_PLATFORM_MEMORY
+#define MBEDTLS_PLATFORM_MEMORY
 
 /**
  * \def MBEDTLS_PLATFORM_NO_STD_FUNCTIONS
@@ -428,7 +428,7 @@
  *
  * Uncomment this to enable pthread mutexes.
  */
-//#define MBEDTLS_THREADING_PTHREAD
+#define MBEDTLS_THREADING_PTHREAD
 
 /**
  * \def MBEDTLS_THREADING_C
@@ -450,7 +450,7 @@
  *
  * Enable this layer to allow use of mutexes within Mbed TLS
  */
-//#define MBEDTLS_THREADING_C
+#define MBEDTLS_THREADING_C
 
 /* Memory buffer allocator options */
 //#define MBEDTLS_MEMORY_ALIGN_MULTIPLE      4 /**< Align on multiples of this value */
@@ -541,7 +541,7 @@
  *        macro is not defined. To completely disable return value check
  *        warnings, define #MBEDTLS_CHECK_RETURN with an empty expansion.
  */
-//#define MBEDTLS_CHECK_RETURN_WARNING
+#define MBEDTLS_CHECK_RETURN_WARNING
 
 /**
  * \def MBEDTLS_DEPRECATED_WARNING
@@ -688,7 +688,7 @@
  *
  * Uncomment to enable invasive tests.
  */
-//#define MBEDTLS_TEST_HOOKS
+#define MBEDTLS_TEST_HOOKS
 
 /** \} name SECTION: General and test configuration options */
 
@@ -723,7 +723,7 @@
  *
  * Uncomment to enable the LMS signature algorithm and private key operations.
  */
-//#define MBEDTLS_LMS_PRIVATE
+#define MBEDTLS_LMS_PRIVATE
 
 /**
  * \def MBEDTLS_MD_C
@@ -1111,7 +1111,7 @@
  * \note The entropy collector will write to the seed file before entropy is
  *       given to an external source, to update it.
  */
-//#define MBEDTLS_ENTROPY_NV_SEED
+#define MBEDTLS_ENTROPY_NV_SEED
 
 /**
  * \def MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES
@@ -1186,7 +1186,7 @@
  * \warning This interface is experimental and may change or be removed
  * without notice.
  */
-//#define MBEDTLS_PSA_CRYPTO_BUILTIN_KEYS
+#define MBEDTLS_PSA_CRYPTO_BUILTIN_KEYS
 
 /** \def MBEDTLS_PSA_CRYPTO_CLIENT
  *
@@ -1202,7 +1202,7 @@
  * \warning This interface is experimental and may change or be removed
  * without notice.
  */
-//#define MBEDTLS_PSA_CRYPTO_CLIENT
+#define MBEDTLS_PSA_CRYPTO_CLIENT
 
 /** \def MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
  *
@@ -1519,7 +1519,7 @@
  *
  * This option is independent of \c MBEDTLS_AES_FEWER_TABLES.
  */
-//#define MBEDTLS_AES_ROM_TABLES
+#define MBEDTLS_AES_ROM_TABLES
 
 /**
  * \def MBEDTLS_AES_FEWER_TABLES
@@ -1540,7 +1540,7 @@
  *
  * This option is independent of \c MBEDTLS_AES_ROM_TABLES.
  */
-//#define MBEDTLS_AES_FEWER_TABLES
+#define MBEDTLS_AES_FEWER_TABLES
 
 /**
  * \def MBEDTLS_AES_ONLY_128_BIT_KEY_LENGTH
@@ -1602,7 +1602,7 @@
  *
  * Uncomment this macro to use less memory for Camellia.
  */
-//#define MBEDTLS_CAMELLIA_SMALL_MEMORY
+#define MBEDTLS_CAMELLIA_SMALL_MEMORY
 
 /**
  * Enable the verified implementations of ECDH primitives from Project Everest
@@ -1675,7 +1675,7 @@
  *
  * Uncomment this macro to enable restartable ECC computations.
  */
-//#define MBEDTLS_ECP_RESTARTABLE
+#define MBEDTLS_ECP_RESTARTABLE
 
 /**
  * Uncomment to enable using new bignum code in the ECC modules.
@@ -1699,7 +1699,7 @@
  *
  * Requires: MBEDTLS_GCM_C
  */
-//#define MBEDTLS_GCM_LARGE_TABLE
+#define MBEDTLS_GCM_LARGE_TABLE
 
 /**
  * \def MBEDTLS_HAVE_ASM
@@ -1844,7 +1844,7 @@
  *
  * Uncomment to enable the smaller implementation of SHA256.
  */
-//#define MBEDTLS_SHA256_SMALLER
+#define MBEDTLS_SHA256_SMALLER
 
 /**
  * \def MBEDTLS_SHA256_USE_ARMV8_A_CRYPTO_IF_PRESENT
@@ -1876,7 +1876,7 @@
  * Uncomment to have the library check for the Armv8-A SHA-256 crypto extensions
  * and use them if available.
  */
-//#define MBEDTLS_SHA256_USE_ARMV8_A_CRYPTO_IF_PRESENT
+#define MBEDTLS_SHA256_USE_ARMV8_A_CRYPTO_IF_PRESENT
 
 /**
  * \def MBEDTLS_SHA256_USE_A64_CRYPTO_IF_PRESENT
@@ -1936,7 +1936,7 @@
  *
  * Uncomment to enable the smaller implementation of SHA512.
  */
-//#define MBEDTLS_SHA512_SMALLER
+#define MBEDTLS_SHA512_SMALLER
 
 /**
  * \def MBEDTLS_SHA512_USE_A64_CRYPTO_IF_PRESENT
@@ -1964,7 +1964,7 @@
  * Uncomment to have the library check for the A64 SHA-512 crypto extensions
  * and use them if available.
  */
-//#define MBEDTLS_SHA512_USE_A64_CRYPTO_IF_PRESENT
+#define MBEDTLS_SHA512_USE_A64_CRYPTO_IF_PRESENT
 
 /**
  * \def MBEDTLS_SHA512_USE_A64_CRYPTO_ONLY
@@ -2322,7 +2322,7 @@
  *
  * Uncomment this macro to enable the NULL cipher and ciphersuites
  */
-//#define MBEDTLS_CIPHER_NULL_CIPHER
+#define MBEDTLS_CIPHER_NULL_CIPHER
 
 /**
  * \def MBEDTLS_CIPHER_PADDING_PKCS7
@@ -2665,7 +2665,7 @@
  * Requires: MBEDTLS_PSA_CRYPTO_C, MBEDTLS_PSA_CRYPTO_STORAGE_C
  *
  */
-//#define MBEDTLS_PSA_CRYPTO_SE_C
+#define MBEDTLS_PSA_CRYPTO_SE_C
 
 /**
  * \def MBEDTLS_RIPEMD160_C
