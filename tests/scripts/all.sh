@@ -17,8 +17,11 @@ if [ -d tf-psa-crypto -a -d include/mbedtls ]; then
     exit 255
 fi
 
-FRAMEWORK="$PWD/framework"
-
-source $FRAMEWORK/scripts/all-core.sh
+case "${MBEDTLS_FRAMEWORK-}" in
+    /*) :;; # absolute path -> keep
+    "") MBEDTLS_FRAMEWORK="$PWD/framework";; # empty or unset -> use default
+    *) MBEDTLS_FRAMEWORK="$PWD/$MBEDTLS_FRAMEWORK";; # relative path -> absolute
+esac
+source "$MBEDTLS_FRAMEWORK/scripts/all-core.sh"
 
 main "$@"
