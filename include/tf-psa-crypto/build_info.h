@@ -87,6 +87,8 @@
     "Something went wrong: TF_PSA_CRYPTO_CONFIG_IS_FINALIZED defined before reading the config files!"
 #endif
 
+#include "tf-psa-crypto/config_check_before.h"
+
 /* PSA crypto configuration */
 #if defined(TF_PSA_CRYPTO_CONFIG_FILE)
 #include TF_PSA_CRYPTO_CONFIG_FILE
@@ -96,6 +98,8 @@
 #if defined(TF_PSA_CRYPTO_USER_CONFIG_FILE)
 #include TF_PSA_CRYPTO_USER_CONFIG_FILE
 #endif
+
+#include "tf-psa-crypto/config_check_after.h"
 
 /* Indicate that all configuration files have been read.
  * It is now time to adjust the configuration (follow through on dependencies,
