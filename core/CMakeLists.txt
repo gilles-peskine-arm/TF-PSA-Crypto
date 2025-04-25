@@ -27,6 +27,24 @@ else()
     link_to_source(psa_crypto_driver_wrappers_no_static.c)
 endif()
 
+if(GEN_FILES)
+    add_custom_command(
+        OUTPUT
+            ${CMAKE_CURRENT_BINARY_DIR}/tf_psa_crypto_config_check_after.h
+            ${CMAKE_CURRENT_BINARY_DIR}/tf_psa_crypto_config_check_before.h
+        COMMAND
+            ${TF_PSA_CRYPTO_PYTHON_EXECUTABLE}
+                ${TF_PSA_CRYPTO_DIR}/scripts/generate_config_checks.py
+                ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS
+            ${TF_PSA_CRYPTO_DIR}/scripts/generate_config_checks.py
+            ${TF_PSA_CRYPTO_FRAMEWORK_DIR}/scripts/mbedtls_framework/config_checks_generator.py
+    )
+else()
+    link_to_source(tf_psa_crypto_config_check_after.h)
+    link_to_source(tf_psa_crypto_config_check_before.h)
+endif()
+
 if(CMAKE_COMPILER_IS_GNUCC)
     set(LIBS_C_FLAGS -Wmissing-declarations -Wmissing-prototypes)
 endif(CMAKE_COMPILER_IS_GNUCC)
