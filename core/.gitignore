@@ -1,4 +1,6 @@
 ###START_GENERATED_FILES###
 /psa_crypto_driver_wrappers.h
 /psa_crypto_driver_wrappers_no_static.c
+/tf_psa_crypto_config_check_after.h
+/tf_psa_crypto_config_check_before.h
 ###END_GENERATED_FILES###
