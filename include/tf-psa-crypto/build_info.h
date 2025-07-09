@@ -136,8 +136,6 @@
  */
 #define TF_PSA_CRYPTO_CONFIG_IS_FINALIZED
 
-#include "tf-psa-crypto/check_config.h"
-
 /*
  * Avoid warning from -pedantic. This is a convenient place for this
  * workaround since this is included by every single file before the
