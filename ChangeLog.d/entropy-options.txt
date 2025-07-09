@@ -1,16 +1,15 @@
 Removals
-   * MBEDTLS_NO_PLATFORM_ENTROPY and the previously deprecated
-     MBEDTLS_ENTROPY_HARDWARE_ALT are removed. See the documentation of
-     MBEDTLS_PLATFORM_GET_ENTROPY_ALT for a description on how the entropy
-     module gathers entropy data.
-   * MBEDTLS_ENTROPY_MIN_HARDWARE is also removed following the removal of
-     MBEDTLS_ENTROPY_HARDWARE_ALT.
+   * The options MBEDTLS_NO_PLATFORM_ENTROPY,
+     MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES, MBEDTLS_ENTROPY_HARDWARE_ALT and
+     MBEDTLS_ENTROPY_MIN_HARDWARE have been removed. Entropy sources are
+     now controlled by MBEDTLS_PSA_BUILTIN_GET_ENTROPY and
+     MBEDTLS_PSA_DRIVER_GET_ENTROPY. See “Entropy configuration” in the
+     migration guide for more information.
 
-Features
-   * To supply a platform-specific entropy source, define the compilation option
-     MBEDTLS_PLATFORM_GET_ENTROPY_ALT and provide the callback function
-     mbedtls_platform_get_entropy_alt(). This function should typically access
-     a TRNG ("true hardware random generator") device on bare-metal platforms,
-     or call an operating system function to obtain cryptographic-quality random
-     data. Mbed TLS requires that a minimum of 32 bytes (not configurable) are
-     returned from this function for a successful entropy gathering round.
+API Changes
+   * The custom entropy collector callback mbedtls_hardware_poll() has
+     been replaced by a new callback mbedtls_platform_get_entropy() with
+     different parameters. See the new function's documentation and
+     “Custom entropy collector” in the migration guide.
+   * To build the library with only a nonvolatile seed and no actual entropy
+     source, you now need to enable the new option MBEDTLS_ENTROPY_NO_SOURCES_OK.
