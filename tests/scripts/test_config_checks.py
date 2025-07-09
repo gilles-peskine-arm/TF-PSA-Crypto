@@ -21,6 +21,11 @@ class CryptoTestConfigChecks(unittest_config_checks.TestConfigChecks):
         'drivers/builtin/include',
     ]
 
+    def test_crypto_no_fs_io(self) -> None:
+        """A sample error expected from check_config.h."""
+        self.bad_case('#undef MBEDTLS_FS_IO',
+                      error=('MBEDTLS_PSA_ITS_FILE_C'))
+
     def test_crypto_define_MBEDTLS_MD_SOME_LEGACY(self) -> None:
         self.bad_case('#define MBEDTLS_MD_SOME_LEGACY',
                       error=('MBEDTLS_MD_SOME_LEGACY'))
