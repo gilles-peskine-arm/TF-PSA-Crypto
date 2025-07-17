@@ -6,6 +6,8 @@ set(src_crypto
     psa_crypto_storage.c
     psa_its_file.c
     tf_psa_crypto_config.c
+    ${CMAKE_CURRENT_BINARY_DIR}/tf_psa_crypto_config_check_after.h
+    ${CMAKE_CURRENT_BINARY_DIR}/tf_psa_crypto_config_check_before.h
 )
 
 if(GEN_FILES)
