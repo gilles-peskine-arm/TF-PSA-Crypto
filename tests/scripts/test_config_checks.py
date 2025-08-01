@@ -21,15 +21,49 @@ class CryptoTestConfigChecks(unittest_config_checks.TestConfigChecks):
         'drivers/builtin/include',
     ]
 
-    def test_crypto_no_fs_io(self) -> None:
-        """A sample error expected from check_config.h."""
-        self.bad_case('#undef MBEDTLS_FS_IO',
-                      error=('MBEDTLS_PSA_ITS_FILE_C'))
+    def test_crypto_config_read(self) -> None:
+        """Check that crypto_config.h is read in crypto."""
+        self.bad_case('#error witness',
+                      error='witness')
 
     def test_crypto_mbedtls_config_not_read(self) -> None:
         """Check that mbedtls_config.h is not read in crypto."""
         self.good_case('',
                        '#error "mbedtls_config.h was read"')
+
+    def test_crypto_undef_MBEDTLS_FS_IO(self) -> None:
+        """A sample error expected from check_config.h."""
+        self.bad_case('#undef MBEDTLS_FS_IO',
+                      error=('MBEDTLS_PSA_ITS_FILE_C'))
+
+    def test_crypto_non_exempt_undef_MBEDTLS_FS_IO(self) -> None:
+        """CONFIG_CHECK_BYPASS does not affect check_config.h.
+
+        This is the historical behavior, which may change if needed.
+        """
+        self.bad_case('#undef MBEDTLS_FS_IO',
+                      extra_options=['-DTF_PSA_CRYPTO_CONFIG_CHECK_BYPASS'])
+
+    def test_crypto_define_MBEDTLS_MD_SOME_LEGACY(self) -> None:
+        """Error when setting an internal option."""
+        self.bad_case('#define MBEDTLS_MD_SOME_LEGACY',
+                      error=('MBEDTLS_MD_SOME_LEGACY'))
+
+    def test_crypto_exempt_define_MBEDTLS_MD_SOME_LEGACY(self) -> None:
+        """Bypassed error when setting an internal option."""
+        self.good_case('#define MBEDTLS_MD_SOME_LEGACY',
+                       extra_options=['-DTF_PSA_CRYPTO_CONFIG_CHECK_BYPASS'])
+
+    @unittest.skip("Currently we can't check if a macro gets undefined.")
+    def test_crypto_undef_MBEDTLS_MD_SOME_LEGACY(self) -> None:
+        """Error when unsetting an internal option."""
+        self.bad_case('#undef MBEDTLS_MD_SOME_LEGACY',
+                      error=('MBEDTLS_MD_SOME_LEGACY'))
+
+    def test_crypto_define_MBEDTLS_PADLOCK_C(self) -> None:
+        """Error when setting a removed option."""
+        self.bad_case('#define MBEDTLS_PADLOCK_C',
+                      error=('MBEDTLS_PADLOCK_C was removed'))
 
 if __name__ == '__main__':
     unittest.main()
