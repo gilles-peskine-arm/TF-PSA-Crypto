@@ -65,5 +65,35 @@ class CryptoTestConfigChecks(unittest_config_checks.TestConfigChecks):
         self.bad_case('#define MBEDTLS_PADLOCK_C',
                       error=('MBEDTLS_PADLOCK_C was removed'))
 
+
+class CryptoTestRNGConfigChecks(unittest_config_checks.TestConfigChecks):
+    """TF-PSA-Crypto unit tests for random generator config checks."""
+
+    PROJECT_CONFIG_C = 'core/tf_psa_crypto_config.c'
+    PROJECT_SPECIFIC_INCLUDE_DIRECTORIES = [
+        'drivers/builtin/include',
+    ]
+
+    def test_rng_no_drbg(self) -> None:
+        self.bad_case('''
+                      #undef MBEDTLS_CTR_DRBG_C
+                      #undef MBEDTLS_HMAC_DRBG_C
+                      #undef PSA_WANT_ALG_DETERMINISTIC_ECDSA // would reenable HMAC_DRBG
+                      ''',
+                      error='No DRBG module')
+
+    def test_rng_strength_256_ok(self) -> None:
+        self.good_case('''
+                       #undef MBEDTLS_PSA_CRYPTO_RNG_STRENGTH
+                       #define MBEDTLS_PSA_CRYPTO_RNG_STRENGTH 256
+                       ''')
+
+    def test_rng_strength_1024_bad(self) -> None:
+        self.bad_case('''
+                      #undef MBEDTLS_PSA_CRYPTO_RNG_STRENGTH
+                      #define MBEDTLS_PSA_CRYPTO_RNG_STRENGTH 1024
+                      ''',
+                      error='Entropy hash algorithm too small')
+
 if __name__ == '__main__':
     unittest.main()

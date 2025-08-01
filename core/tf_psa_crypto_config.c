@@ -24,3 +24,19 @@
 #include "tf_psa_crypto_check_config.h"
 /* Automatically generated checks */
 #include "tf_psa_crypto_config_check_final.h"
+
+/* For MBEDTLS_STATIC_ASSERT */
+#include "tf_psa_crypto_common.h"
+/* For PSA_HASH_LENGTH */
+#include <psa/crypto_sizes.h>
+
+/* Additional domain-specific checks */
+#include "psa_crypto_random_impl.h"
+
+/* A sample static assert. To be rewritten and completed, preferably in
+ * psa_crypto_random_impl.h, once the RNG options rework for 1.0 is done. */
+#if defined(MBEDTLS_ENTROPY_MD) && defined(MBEDTLS_PSA_CRYPTO_RNG_STRENGTH)
+#define ENTROPY_BITS PSA_BYTES_TO_BITS(PSA_HASH_LENGTH(MBEDTLS_ENTROPY_MD))
+MBEDTLS_STATIC_ASSERT(ENTROPY_BITS >= MBEDTLS_PSA_CRYPTO_RNG_STRENGTH,
+                      "Entropy hash algorithm too small for the desired RNG strength");
+#endif
