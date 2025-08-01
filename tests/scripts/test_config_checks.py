@@ -65,5 +65,95 @@ class CryptoTestConfigChecks(unittest_config_checks.TestConfigChecks):
         self.bad_case('#define MBEDTLS_PADLOCK_C',
                       error=('MBEDTLS_PADLOCK_C was removed'))
 
+
+class CryptoTestRNGConfigChecks(unittest_config_checks.TestConfigChecks):
+    """TF-PSA-Crypto unit tests for random generator config checks."""
+
+    PROJECT_CONFIG_C = 'core/tf_psa_crypto_config.c'
+    PROJECT_SPECIFIC_INCLUDE_DIRECTORIES = [
+        'drivers/builtin/include',
+    ]
+
+    def test_rng_no_drbg(self) -> None:
+        self.bad_case('''
+                      #undef MBEDTLS_CTR_DRBG_C
+                      #undef MBEDTLS_HMAC_DRBG_C
+                      #undef PSA_WANT_ALG_DETERMINISTIC_ECDSA // would reenable HMAC_DRBG
+                      ''',
+                      error=r'No DRBG module')
+
+    def test_rng_ctr_drbg_only(self) -> None:
+        self.good_case('''
+                       #define MBEDTLS_CTR_DRBG_C
+                       #undef MBEDTLS_HMAC_DRBG_C
+                       #undef PSA_WANT_ALG_DETERMINISTIC_ECDSA // would reenable HMAC_DRBG
+                       ''')
+
+    def test_rng_hmac_drbg_only(self) -> None:
+        self.good_case('''
+                       #undef MBEDTLS_CTR_DRBG_C
+                       #define MBEDTLS_HMAC_DRBG_C
+                       ''')
+
+    def test_rng_strength_256_ok(self) -> None:
+        self.good_case('''
+                       #undef MBEDTLS_PSA_CRYPTO_RNG_STRENGTH
+                       #define MBEDTLS_PSA_CRYPTO_RNG_STRENGTH 256
+                       ''')
+
+    def test_rng_strength_1024_bad(self) -> None:
+        self.bad_case('''
+                      #undef MBEDTLS_PSA_CRYPTO_RNG_STRENGTH
+                      #define MBEDTLS_PSA_CRYPTO_RNG_STRENGTH 1024
+                      ''',
+                      error=r'hash size.*MBEDTLS_PSA_CRYPTO_RNG_STRENGTH')
+
+    def test_rng_strength_256_aes_128(self) -> None:
+        self.bad_case('''
+                      #undef MBEDTLS_PSA_CRYPTO_RNG_STRENGTH
+                      #define MBEDTLS_PSA_CRYPTO_RNG_STRENGTH 256
+                      #define MBEDTLS_AES_ONLY_128_BIT_KEY_LENGTH
+                      ''',
+                      error=r'strength.*128-bit AES')
+
+    def test_rng_strength_default_aes_128(self) -> None:
+        self.bad_case('''
+                      #define MBEDTLS_AES_ONLY_128_BIT_KEY_LENGTH
+                      ''',
+                      error=r'strength.*128-bit AES')
+
+    def test_rng_strength_256_sha_1(self) -> None:
+        self.bad_case('''
+                      #undef MBEDTLS_PSA_CRYPTO_RNG_STRENGTH
+                      #define MBEDTLS_PSA_CRYPTO_RNG_STRENGTH 256
+                      #define MBEDTLS_PSA_CRYPTO_RNG_HASH PSA_ALG_SHA_1
+                      ''',
+                      # Currently rejected with a generic check (only
+                      # whitelisted hash algorithms are allowed).
+                      # If we remove the whitelist, this should still be
+                      # rejected because the hash is too small.
+                      error=r'Invalid hashing algorithm for MBEDTLS_PSA_CRYPTO_RNG_HASH')
+
+    def test_rng_entropy_no_source(self) -> None:
+        self.bad_case('''
+                      #undef MBEDTLS_PSA_DRIVER_GET_ENTROPY
+                      ''',
+                      error=r'no true sources')
+
+    def test_rng_entropy_nv_seed_only_implicit(self) -> None:
+        self.bad_case('''
+                      #undef MBEDTLS_PSA_DRIVER_GET_ENTROPY
+                      #define MBEDTLS_ENTROPY_NV_SEED
+                      ''',
+                      error=r'no true sources')
+
+    def test_rng_entropy_nv_seed_only_explicit(self) -> None:
+        self.good_case('''
+                       #undef MBEDTLS_PSA_DRIVER_GET_ENTROPY
+                       #define MBEDTLS_ENTROPY_NV_SEED
+                       #define MBEDTLS_ENTROPY_NO_SOURCES_OK
+                       ''')
+
+
 if __name__ == '__main__':
     unittest.main()
