@@ -49,7 +49,7 @@ typedef struct mbedtls_threading_mutex_t {
 #endif
 } mbedtls_threading_mutex_t;
 
-#if defined(MBEDTLS_THREADING_ALT)
+#if defined(MBEDTLS_THREADING_ALT) || defined(MBEDTLS_TEST_HOOKS)
 /** Platform callback to initialize and set up a mutex.
  *
  * \note    The mutex may not be used until one thread has completed a call
@@ -111,6 +111,9 @@ int mbedtls_platform_mutex_lock(mbedtls_platform_mutex_t *mutex);
  */
 int mbedtls_platform_mutex_unlock(mbedtls_platform_mutex_t *mutex);
 #endif /* MBEDTLS_THREADING_ALT */
+
+/* For test purposes only. See <test/threading_helpers.h>. */
+#define MBEDTLS_TEST_HOOKS_FOR_MUTEX_USAGE
 
 /**
  * \brief   Initialize global mutexes.
