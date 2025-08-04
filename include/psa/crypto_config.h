@@ -408,6 +408,21 @@
  *
  * Provide your own alternate threading implementation.
  *
+ * The implementation must provide the following elements:
+ *
+ * - A header "threading_alt.h" that defines the following type:
+ *     - ::mbedtls_platform_mutex_t
+ * - The following linkable functions:
+ *     - mbedtls_platform_mutex_init()
+ *     - mbedtls_platform_mutex_free()
+ *     - mbedtls_platform_mutex_lock()
+ *     - mbedtls_platform_mutex_unlock()
+ *
+ * See mbedtls/threading.h for more information.
+ *
+ * Note that applications must call mbedtls_threading_setup() before
+ * any other library function.
+ *
  * Requires: MBEDTLS_THREADING_C
  *
  * Uncomment this to allow your own alternate threading implementation.
@@ -418,6 +433,9 @@
  * \def MBEDTLS_THREADING_PTHREAD
  *
  * Enable the pthread wrapper layer for the threading layer.
+ *
+ * Pthread mutexes are initialized statically, so calling
+ * mbedtls_threading_setup() is optional.
  *
  * Requires: MBEDTLS_THREADING_C
  *
