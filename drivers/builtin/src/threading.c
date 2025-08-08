@@ -51,6 +51,39 @@
 
 #endif /* MBEDTLS_HAVE_TIME_DATE && !MBEDTLS_PLATFORM_GMTIME_R_ALT */
 
+#if defined(MBEDTLS_THREADING_C11)
+MBEDTLS_STATIC_TESTABLE
+void mbedtls_platform_mutex_init(mbedtls_platform_mutex_t *mutex)
+{
+    (void) mtx_init(mutex, mtx_plain);
+}
+
+MBEDTLS_STATIC_TESTABLE
+void mbedtls_platform_mutex_free(mbedtls_platform_mutex_t *mutex)
+{
+    (void) mtx_destroy(mutex);
+}
+
+MBEDTLS_STATIC_TESTABLE
+int mbedtls_platform_mutex_lock(mbedtls_platform_mutex_t *mutex)
+{
+    if (mtx_lock(mutex) != thrd_success) {
+        return MBEDTLS_ERR_THREADING_MUTEX_ERROR;
+    }
+    return 0;
+}
+
+MBEDTLS_STATIC_TESTABLE
+int mbedtls_platform_mutex_unlock(mbedtls_platform_mutex_t *mutex)
+{
+    if (mtx_unlock(mutex) != thrd_success) {
+        return MBEDTLS_ERR_THREADING_MUTEX_ERROR;
+    }
+    return 0;
+}
+
+#endif /* MBEDTLS_THREADING_C11 */
+
 #if defined(MBEDTLS_THREADING_PTHREAD)
 MBEDTLS_STATIC_TESTABLE
 void mbedtls_platform_mutex_init(mbedtls_platform_mutex_t *mutex)

@@ -26,6 +26,11 @@ extern "C" {
 
 #if defined(MBEDTLS_THREADING_C)
 
+#if defined(MBEDTLS_THREADING_C11)
+#include <threads.h>
+typedef mtx_t mbedtls_platform_mutex_t;
+#endif
+
 #if defined(MBEDTLS_THREADING_PTHREAD)
 #include <pthread.h>
 typedef pthread_mutex_t mbedtls_platform_mutex_t;
