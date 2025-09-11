@@ -435,6 +435,8 @@ int psa_can_do_hash(psa_algorithm_t hash_alg);
 #define PSA_ALG_IS_PAKE(alg)                                        \
     (((alg) & PSA_ALG_CATEGORY_MASK) == PSA_ALG_CATEGORY_PAKE)
 
+#define PSA_ALG_JPAKE_BASE                      ((psa_algorithm_t) 0x0a000100)
+
 /** The Password-authenticated key exchange by juggling (J-PAKE) algorithm.
  *
  * This is J-PAKE as defined by RFC 8236, instantiated with the following
@@ -548,11 +550,18 @@ int psa_can_do_hash(psa_algorithm_t hash_alg);
  * of RFC 8236 for two examples.
  *
  */
-#define PSA_ALG_JPAKE_BASE                      ((psa_algorithm_t) 0x0a000100)
-
 #define PSA_ALG_JPAKE(hash_alg) \
     (PSA_ALG_JPAKE_BASE | ((hash_alg) & (PSA_ALG_HASH_MASK)))
 
+/** Whether the specified algorithm is a JPAKE algorithm.
+ *
+ * \param alg An algorithm identifier (value of type #psa_algorithm_t).
+ *
+ * \return 1 if \p alg is of the form #PSA_ALG_JPAKE(\c hash_alg)
+ *         for some hash algorithm \c hash_alg, 0 otherwise.
+ *         This macro may return either 0 or 1 if \p alg is not a supported
+ *         algorithm identifier.
+ */
 #define PSA_ALG_IS_JPAKE(alg) \
     (((alg) & (~(PSA_ALG_HASH_MASK))) == PSA_ALG_JPAKE_BASE)
 
