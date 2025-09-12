@@ -45,6 +45,7 @@
 
 #include "mbedtls/platform.h"
 
+#if defined(MBEDTLS_ECP_C)
 /* Traces that can be used to count or check the number of basic operations
  * (MPI multiply modulo, point addition, point doubling) in an
  * ECC operation. */
@@ -57,9 +58,10 @@ mbedtls_ecp_trace_counts_t *mbedtls_ecp_trace_counts_live = NULL;
             ++mbedtls_ecp_trace_counts_live->where;                     \
         }                                                               \
     } while (0)
-#else
+#else /* MBEDTLS_TEST_HOOKS */
 #define TRACE_POINT(where) ((void) 0)
-#endif
+#endif /* MBEDTLS_TEST_HOOKS */
+#endif /* MBEDTLS_ECP_C */
 
 #if defined(MBEDTLS_ECP_RESTARTABLE)
 /*
