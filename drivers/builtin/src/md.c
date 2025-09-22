@@ -241,14 +241,14 @@ static psa_algorithm_t psa_alg_of_md(const mbedtls_md_info_t *info)
     }
 }
 
-static int md_can_use_psa(const mbedtls_md_info_t *info)
+/* Obsolete function that allowed bypassing PSA in hybrid legacy+PSA
+ *  configuraiions when PSA was not yet fully initialized. This was
+ *  possible in Mbed TLS 3.4 through 3.6, but no longer is since
+ *  TF-PSA-Crypto 1.0 which is fully PSA. */
+static inline int md_can_use_psa(const mbedtls_md_info_t *info)
 {
-    psa_algorithm_t alg = psa_alg_of_md(info);
-    if (alg == PSA_ALG_NONE) {
-        return 0;
-    }
-
-    return psa_can_do_hash(alg);
+    (void) info;
+    return 1;
 }
 #endif /* MBEDTLS_MD_SOME_PSA */
 

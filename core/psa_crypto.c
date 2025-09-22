@@ -146,23 +146,6 @@ static uint8_t psa_get_initialized(void)
     return initialized;
 }
 
-static uint8_t psa_get_drivers_initialized(void)
-{
-    uint8_t initialized;
-
-#if defined(MBEDTLS_THREADING_C)
-    mbedtls_mutex_lock(&mbedtls_threading_psa_globaldata_mutex);
-#endif /* defined(MBEDTLS_THREADING_C) */
-
-    initialized = (global_data.initialized & PSA_CRYPTO_SUBSYSTEM_DRIVER_WRAPPERS_INITIALIZED) != 0;
-
-#if defined(MBEDTLS_THREADING_C)
-    mbedtls_mutex_unlock(&mbedtls_threading_psa_globaldata_mutex);
-#endif /* defined(MBEDTLS_THREADING_C) */
-
-    return initialized;
-}
-
 #define GUARD_MODULE_INITIALIZED        \
     if (psa_get_initialized() == 0)     \
     return PSA_ERROR_BAD_STATE;
@@ -277,20 +260,6 @@ static uint8_t psa_get_drivers_initialized(void)
 #define LOCAL_OUTPUT_FREE(output, output_copy) \
     output_copy = NULL;
 #endif /* !MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS */
-
-
-int psa_can_do_hash(psa_algorithm_t hash_alg)
-{
-    (void) hash_alg;
-    return psa_get_drivers_initialized();
-}
-
-int psa_can_do_cipher(psa_key_type_t key_type, psa_algorithm_t cipher_alg)
-{
-    (void) key_type;
-    (void) cipher_alg;
-    return psa_get_drivers_initialized();
-}
 
 
 #if defined(MBEDTLS_PSA_BUILTIN_KEY_TYPE_DH_KEY_PAIR_IMPORT) ||       \
