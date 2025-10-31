@@ -364,6 +364,11 @@
 #define MBEDTLS_CIPHER_PADDING_PKCS7
 #endif
 
+/* PKCS5 needs MD. */
+#if defined(MBEDTLS_PKCS5_C)
+#define MBEDTLS_MD_C
+#endif
+
 /* Some internal helpers to determine which operation modes are available. */
 
 #if defined(PSA_WANT_ALG_GCM) || defined(PSA_WANT_ALG_CCM) || \

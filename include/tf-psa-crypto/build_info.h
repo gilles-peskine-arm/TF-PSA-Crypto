@@ -143,13 +143,6 @@
 #endif
 #endif
 
-/* Auto-enable MBEDTLS_MD_C if needed by a module that didn't require it
- * in a previous release, to ensure backwards compatibility.
- */
-#if defined(MBEDTLS_PKCS5_C)
-#define MBEDTLS_MD_C
-#endif
-
 /* PSA crypto specific configuration options
  * - If config_psa.h reads a configuration option in preprocessor directive,
  *   this symbol should be set before its inclusion. (e.g. MBEDTLS_MD_C)
