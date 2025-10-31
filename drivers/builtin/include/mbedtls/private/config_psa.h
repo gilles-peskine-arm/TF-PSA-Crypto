@@ -18,8 +18,6 @@
 #ifndef TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CONFIG_PSA_H
 #define TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CONFIG_PSA_H
 
-#include "psa/crypto_adjust_config_synonyms.h"
-
 #include "psa/crypto_adjust_config_dependencies.h"
 
 /* Require built-in implementations based on PSA requirements */
