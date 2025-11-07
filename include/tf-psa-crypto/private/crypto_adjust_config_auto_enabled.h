@@ -1,5 +1,5 @@
 /**
- * \file psa/crypto_adjust_auto_enabled.h
+ * \file tf-psa-crypto/private/crypto_adjust_config_auto_enabled.h
  * \brief Adjust PSA configuration: enable always-on features
  *
  * This is an internal header. Do not include it directly.
@@ -12,8 +12,8 @@
  *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
  */
 
-#ifndef PSA_CRYPTO_ADJUST_AUTO_ENABLED_H
-#define PSA_CRYPTO_ADJUST_AUTO_ENABLED_H
+#ifndef TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_AUTO_ENABLED_H
+#define TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_AUTO_ENABLED_H
 
 #if !defined(TF_PSA_CRYPTO_CONFIG_FILES_READ)
 #error "Do not include psa/crypto_adjust_*.h manually! This can lead to problems, " \
@@ -28,4 +28,4 @@
 #define PSA_WANT_KEY_TYPE_PASSWORD_HASH 1
 #define PSA_WANT_KEY_TYPE_RAW_DATA 1
 
-#endif /* PSA_CRYPTO_ADJUST_AUTO_ENABLED_H */
+#endif /* TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_AUTO_ENABLED_H */
