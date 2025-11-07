@@ -1,5 +1,5 @@
 /**
- * \file psa/crypto_adjust_config_derived.h
+ * \file tf-psa-crypto/private/crypto_adjust_config_derived.h
  * \brief Adjust PSA configuration by defining internal symbols
  *
  * This is an internal header. Do not include it directly.
@@ -9,8 +9,8 @@
  *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
  */
 
-#ifndef PSA_CRYPTO_ADJUST_CONFIG_DERIVED_H
-#define PSA_CRYPTO_ADJUST_CONFIG_DERIVED_H
+#ifndef TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_DERIVED_H
+#define TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_DERIVED_H
 
 #if !defined(TF_PSA_CRYPTO_CONFIG_FILES_READ)
 #error "Do not include psa/crypto_adjust_*.h manually! This can lead to problems, " \
@@ -98,4 +98,4 @@
 
 #endif /* !MBEDTLS_PSA_CRYPTO_RNG_HASH */
 
-#endif /* PSA_CRYPTO_ADJUST_CONFIG_DERIVED_H */
+#endif /* TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_DERIVED_H */

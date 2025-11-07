@@ -29,6 +29,4 @@
 #endif
 #endif /* MBEDTLS_PSA_CRYPTO_C */
 
-#include "psa/crypto_adjust_config_derived.h"
-
 #endif /* TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CONFIG_PSA_H */

@@ -149,6 +149,9 @@
 #include "tf-psa-crypto/private/crypto_adjust_config_dependencies.h"
 #include "tf-psa-crypto/private/crypto_adjust_config_key_pair_types.h"
 
+/* Define additional internal symbols based on the library configuration. */
+#include "tf-psa-crypto/private/crypto_adjust_config_derived.h"
+
 /* PSA crypto specific configuration options
  * - If config_psa.h reads a configuration option in preprocessor directive,
  *   this symbol should be set before its inclusion. (e.g. MBEDTLS_MD_C)
