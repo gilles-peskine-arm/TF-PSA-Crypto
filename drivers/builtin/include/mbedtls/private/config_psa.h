@@ -20,10 +20,6 @@
 
 /* Require built-in implementations based on PSA requirements */
 
-/* We need this to have a complete list of requirements
- * before we deduce what built-ins are required. */
-#include "psa/crypto_adjust_config_key_pair_types.h"
-
 #if defined(MBEDTLS_PSA_CRYPTO_C)
 /* If we are implementing PSA crypto ourselves, then we want to enable the
  * required built-ins. Otherwise, PSA features will be provided by the server. */
