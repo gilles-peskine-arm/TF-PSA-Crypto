@@ -1,5 +1,5 @@
 /**
- * \file psa/crypto_adjust_config_dependencies.h
+ * \file tf-psa-crypto/private/crypto_adjust_config_dependencies.h
  * \brief Adjust PSA configuration by resolving some dependencies.
  *
  * This is an internal header. Do not include it directly.
@@ -15,8 +15,8 @@
  *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
  */
 
-#ifndef PSA_CRYPTO_ADJUST_CONFIG_DEPENDENCIES_H
-#define PSA_CRYPTO_ADJUST_CONFIG_DEPENDENCIES_H
+#ifndef TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_DEPENDENCIES_H
+#define TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_DEPENDENCIES_H
 
 #if !defined(TF_PSA_CRYPTO_CONFIG_FILES_READ)
 #error "Do not include psa/crypto_adjust_*.h manually! This can lead to problems, " \
@@ -26,6 +26,7 @@
     "automatically at the right point."
 #endif /* */
 
+/* Generic implementations of some key derivation algorithms based on HMAC */
 #if (defined(PSA_WANT_ALG_TLS12_PRF) && \
     !defined(MBEDTLS_PSA_ACCEL_ALG_TLS12_PRF)) || \
     (defined(PSA_WANT_ALG_TLS12_PSK_TO_MS) && \
@@ -42,14 +43,16 @@
 #define PSA_WANT_KEY_TYPE_HMAC 1
 #endif
 
+/* Generic implementation o some key derivation algorithms based on CMAC */
 #if (defined(PSA_WANT_ALG_PBKDF2_AES_CMAC_PRF_128) && \
     !defined(MBEDTLS_PSA_ACCEL_ALG_PBKDF2_AES_CMAC_PRF_128))
 #define PSA_WANT_KEY_TYPE_AES 1
 #define PSA_WANT_ALG_CMAC 1
 #endif
 
+/* Generic implementation of NIST_KW based on a block cipher in ECB mode */
 #if defined(MBEDTLS_NIST_KW_C)
 #define PSA_WANT_ALG_ECB_NO_PADDING 1
 #endif
 
-#endif /* PSA_CRYPTO_ADJUST_CONFIG_DEPENDENCIES_H */
+#endif /* TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_DEPENDENCIES_H */
