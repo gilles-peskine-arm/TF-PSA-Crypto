@@ -152,14 +152,21 @@
 /* Define additional internal symbols based on the library configuration. */
 #include "tf-psa-crypto/private/crypto_adjust_config_derived.h"
 
-/* PSA crypto specific configuration options
- * - If config_psa.h reads a configuration option in preprocessor directive,
- *   this symbol should be set before its inclusion. (e.g. MBEDTLS_MD_C)
- * - If config_psa.h writes a configuration option in conditional directive,
- *   this symbol should be consulted after its inclusion.
- *   (e.g. MBEDTLS_MD_LIGHT)
- */
-#include "mbedtls/private/config_psa.h"
+#if defined(MBEDTLS_PSA_CRYPTO_C)
+/* If we are implementing PSA crypto ourselves (as opposed to only
+ * having client-side stubs), enable built-in drivers for all the
+ * mechanisms activated with `PSA_WANT_xxx` that are not
+ * accelerated. */
+#include "mbedtls/private/config_adjust_legacy_from_psa.h"
+
+/* Special header to adjust the configuration to make a build
+ * where all enabled mechanisms are provided both as built-in and
+ * through libtestdriver1. See the comment at the top of the
+ * header file for details. */
+#if defined(MBEDTLS_CONFIG_ADJUST_TEST_ACCELERATORS) //no-check-names
+#include "mbedtls/private/config_adjust_test_accelerators.h"
+#endif
+#endif /* MBEDTLS_PSA_CRYPTO_C */
 
 #include "mbedtls/config_adjust_legacy_crypto.h"
 
