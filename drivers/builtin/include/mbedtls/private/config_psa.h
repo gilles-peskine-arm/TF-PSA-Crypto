@@ -31,6 +31,4 @@
 
 #include "psa/crypto_adjust_config_derived.h"
 
-#include "psa/crypto_adjust_auto_enabled.h"
-
 #endif /* TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CONFIG_PSA_H */

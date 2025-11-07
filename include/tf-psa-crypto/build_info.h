@@ -145,6 +145,7 @@
 
 /* Tweak the configuration of PSA mechanisms. */
 #include "tf-psa-crypto/private/crypto_adjust_config_synonyms.h"
+#include "tf-psa-crypto/private/crypto_adjust_config_auto_enabled.h"
 #include "tf-psa-crypto/private/crypto_adjust_config_dependencies.h"
 #include "tf-psa-crypto/private/crypto_adjust_config_key_pair_types.h"
 
