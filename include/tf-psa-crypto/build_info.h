@@ -168,7 +168,8 @@
 #endif
 #endif /* MBEDTLS_PSA_CRYPTO_C */
 
-#include "mbedtls/config_adjust_legacy_crypto.h"
+/* Define additional symbols used by built-in crypto modules. */
+#include "mbedtls/private/crypto_adjust_config_tweak_builtins.h"
 
 /* Indicate that all configuration symbols are set,
  * even the ones that are calculated programmatically.
