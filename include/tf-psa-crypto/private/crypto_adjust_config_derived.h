@@ -98,4 +98,10 @@
 
 #endif /* !MBEDTLS_PSA_CRYPTO_RNG_HASH */
 
+/* A macro used by Mbed TLS. */
+#if defined(PSA_WANT_ALG_GCM) || defined(PSA_WANT_ALG_CCM) || \
+    defined(PSA_WANT_ALG_CHACHA20_POLY1305)
+#define MBEDTLS_SSL_HAVE_AEAD
+#endif
+
 #endif /* TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_DERIVED_H */
