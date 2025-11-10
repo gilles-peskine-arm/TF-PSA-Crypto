@@ -1,21 +1,21 @@
 /**
- * \file mbedtls/config_adjust_legacy_from_psa.h
- * \brief Adjust PSA configuration: activate legacy implementations
+ * \file mbedtls/private/crypto_adjust_config_enable_builtins.h
+ * \brief Adjust PSA configuration: activate built-in implementations
  *
  * This is an internal header. Do not include it directly.
  *
- * Activate legacy implementations of cryptographic mechanisms as needed to
+ * Activate built-in implementations of cryptographic mechanisms as needed to
  * fulfill the needs of the PSA configuration. Generally speaking, we activate
- * a legacy mechanism if it's needed for a requested PSA mechanism and there is
- * no PSA driver for it.
+ * a built-in mechanism if it's needed for a requested PSA mechanism and there
+ * is no PSA driver for it.
  */
 /*
  *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
  */
 
-#ifndef TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CONFIG_ADJUST_LEGACY_FROM_PSA_H
-#define TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CONFIG_ADJUST_LEGACY_FROM_PSA_H
+#ifndef TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CRYPTO_ADJUST_CONFIG_ENABLE_BUILTINS_H
+#define TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CRYPTO_ADJUST_CONFIG_ENABLE_BUILTINS_H
 
 #if !defined(TF_PSA_CRYPTO_CONFIG_FILES_READ)
 #error "Do not include mbedtls/config_adjust_*.h manually! This can lead to problems, " \
@@ -839,4 +839,4 @@
 #endif /* !MBEDTLS_PSA_ACCEL_ALG_CHACHA20_POLY1305 */
 #endif /* PSA_WANT_ALG_CHACHA20_POLY1305 */
 
-#endif /* TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CONFIG_ADJUST_LEGACY_FROM_PSA_H */
+#endif /* TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CRYPTO_ADJUST_CONFIG_ENABLE_BUILTINS_H */

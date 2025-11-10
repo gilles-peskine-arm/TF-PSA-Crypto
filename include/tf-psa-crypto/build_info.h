@@ -157,7 +157,7 @@
  * having client-side stubs), enable built-in drivers for all the
  * mechanisms activated with `PSA_WANT_xxx` that are not
  * accelerated. */
-#include "mbedtls/private/config_adjust_legacy_from_psa.h"
+#include "mbedtls/private/crypto_adjust_config_enable_builtins.h"
 
 /* Special header to adjust the configuration to make a build
  * where all enabled mechanisms are provided both as built-in and
