@@ -171,6 +171,9 @@
 /* Define additional symbols used by built-in crypto modules. */
 #include "mbedtls/private/crypto_adjust_config_tweak_builtins.h"
 
+/* Define additional symbols used by support modules. */
+#include "tf-psa-crypto/private/crypto_adjust_config_support.h"
+
 /* Indicate that all configuration symbols are set,
  * even the ones that are calculated programmatically.
  * It is now safe to query the configuration (to check it, to size buffers,
