@@ -168,6 +168,9 @@
 #endif
 #endif /* MBEDTLS_PSA_CRYPTO_C */
 
+/* Define additional symbols used by support modules. */
+#include "tf-psa-crypto/private/crypto_adjust_config_support.h"
+
 /* Define additional symbols used by built-in crypto modules. */
 #include "mbedtls/private/crypto_adjust_config_tweak_builtins.h"
 
