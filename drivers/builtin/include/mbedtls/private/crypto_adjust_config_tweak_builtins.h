@@ -53,24 +53,6 @@
 #define MBEDTLS_CIPHER_C
 #endif
 
-/* Auto-enable MBEDTLS_MD_LIGHT based on MBEDTLS_MD_C.
- * This allows checking for MD_LIGHT rather than MD_LIGHT || MD_C.
- */
-#if defined(MBEDTLS_MD_C)
-#define MBEDTLS_MD_LIGHT
-#endif
-
-/* Auto-enable MBEDTLS_MD_LIGHT if needed by a module that didn't require it
- * in a previous release, to ensure backwards compatibility.
- */
-#if defined(MBEDTLS_ECJPAKE_C) || \
-    defined(MBEDTLS_PEM_PARSE_C) || \
-    defined(MBEDTLS_ENTROPY_C) || \
-    defined(MBEDTLS_PK_C) || \
-    defined(MBEDTLS_RSA_C)
-#define MBEDTLS_MD_LIGHT
-#endif
-
 /* BLOCK_CIPHER module can dispatch to PSA when:
  * - PSA is enabled and drivers have been initialized
  * - desired key type is supported on the PSA side

@@ -52,6 +52,24 @@
 #endif
 #endif /* MBEDTLS_PSA_CRYPTO_C */
 
+/* Auto-enable MBEDTLS_MD_LIGHT based on MBEDTLS_MD_C.
+ * This allows checking for MD_LIGHT rather than MD_LIGHT || MD_C.
+ */
+#if defined(MBEDTLS_MD_C)
+#define MBEDTLS_MD_LIGHT
+#endif
+
+/* Auto-enable MBEDTLS_MD_LIGHT if needed by a module that didn't require it
+ * in a previous release, to ensure backwards compatibility.
+ */
+#if defined(MBEDTLS_ECJPAKE_C) || \
+    defined(MBEDTLS_PEM_PARSE_C) || \
+    defined(MBEDTLS_ENTROPY_C) || \
+    defined(MBEDTLS_PK_C) || \
+    defined(MBEDTLS_RSA_C)
+#define MBEDTLS_MD_LIGHT
+#endif
+
 #if defined(MBEDTLS_MD_LIGHT)
 /*
  * - MBEDTLS_MD_xxx_VIA_PSA is defined if the md module may perform xxx via PSA
