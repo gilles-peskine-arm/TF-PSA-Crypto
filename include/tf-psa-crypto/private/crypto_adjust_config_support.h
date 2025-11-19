@@ -52,6 +52,11 @@
 #endif
 #endif /* MBEDTLS_PSA_CRYPTO_C */
 
+/* PKCS5 needs MD. */
+#if defined(MBEDTLS_PKCS5_C)
+#define MBEDTLS_MD_C
+#endif
+
 /* Auto-enable MBEDTLS_MD_LIGHT based on MBEDTLS_MD_C.
  * This allows checking for MD_LIGHT rather than MD_LIGHT || MD_C.
  */
@@ -209,11 +214,6 @@
  * are met. */
 #if defined(MBEDTLS_PK_PARSE_C) && defined(MBEDTLS_ECP_C)
 #define MBEDTLS_PK_PARSE_EC_COMPRESSED
-#endif
-
-/* PKCS5 needs MD. */
-#if defined(MBEDTLS_PKCS5_C)
-#define MBEDTLS_MD_C
 #endif
 
 #endif /* TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_SUPPORT_H */
