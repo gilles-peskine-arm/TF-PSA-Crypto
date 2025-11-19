@@ -75,7 +75,7 @@
  * If the RNG strength is not explicitly defined in the configuration, define
  * it here to its default value. This ensures it is available for use in
  * adjusting the configuration of RNG internal modules in
- * config_adjust_legacy_crypto.h.
+ * crypto_adjust_config_support.h.
  */
 #if !defined(MBEDTLS_PSA_CRYPTO_RNG_STRENGTH)
 #define MBEDTLS_PSA_CRYPTO_RNG_STRENGTH 256

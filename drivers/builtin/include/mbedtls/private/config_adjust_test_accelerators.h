@@ -23,11 +23,11 @@
  *
  * The purpose of this header is to declare the transparent test drivers as
  * accelerators just after infering the built-in drivers
- * (config_adjust_legacy_from_psa.h). Not before the inclusion
- * of config_adjust_legacy_from_psa.h in the build_info.h sequence of header
+ * (crypto_adjust_config_enable_builtins.h). Not before the inclusion of
+ * crypto_adjust_config_enable_builtins.h in the build_info.h sequence of header
  * inclusions as this would remove the built-in drivers. Just after to set up
  * properly the internal macros introduced as part of the driver only work
- * (mainly if not only in config_adjust_legacy_crypto.h).
+ * (mainly if not only in crypto_adjust_config_tweak_builtins.h).
  */
 /*
  *  Copyright The Mbed TLS Contributors

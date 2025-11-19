@@ -42,7 +42,7 @@
 #error "MBEDTLS_PLATFORM_C is required on Windows"
 #endif
 /* See auto-enabling SNPRINTF_ALT and VSNPRINTF_ALT
- * in * config_adjust_legacy_crypto.h */
+ * in <tf-psa-crypto/private/crypto_adjust_config_support.h> */
 #endif /* _MINGW32__ || (_MSC_VER && (_MSC_VER <= 1900)) */
 
 #if defined(MBEDTLS_DEPRECATED_WARNING) && \
