@@ -37,14 +37,6 @@
 #ifndef TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CONFIG_ADJUST_TEST_ACCELERATORS_H
 #define TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CONFIG_ADJUST_TEST_ACCELERATORS_H
 
-#if !defined(TF_PSA_CRYPTO_CONFIG_FILES_READ)
-#error "Do not include mbedtls/config_adjust_*.h manually! This can lead to problems, " \
-    "up to and including runtime errors such as buffer overflows. " \
-    "If you're trying to fix a complaint from check_config.h, just remove " \
-    "it from your configuration file: since Mbed TLS 3.0, it is included " \
-    "automatically at the right point."
-#endif
-
 /* Declare the accelerator driver for all cryptographic mechanisms for which
  * the test driver is implemented. This is copied from psa/crypto_config.h
  * with the parts not implemented by the test driver commented out. */

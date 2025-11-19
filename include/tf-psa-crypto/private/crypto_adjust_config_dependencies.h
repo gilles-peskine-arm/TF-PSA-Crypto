@@ -18,14 +18,6 @@
 #ifndef TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_DEPENDENCIES_H
 #define TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_DEPENDENCIES_H
 
-#if !defined(TF_PSA_CRYPTO_CONFIG_FILES_READ)
-#error "Do not include psa/crypto_adjust_*.h manually! This can lead to problems, " \
-    "up to and including runtime errors such as buffer overflows. " \
-    "If you're trying to fix a complaint from check_config.h, just remove " \
-    "it from your configuration file: since Mbed TLS 3.0, it is included " \
-    "automatically at the right point."
-#endif /* */
-
 /* Generic implementations of some key derivation algorithms based on HMAC */
 #if (defined(PSA_WANT_ALG_TLS12_PRF) && \
     !defined(MBEDTLS_PSA_ACCEL_ALG_TLS12_PRF)) || \

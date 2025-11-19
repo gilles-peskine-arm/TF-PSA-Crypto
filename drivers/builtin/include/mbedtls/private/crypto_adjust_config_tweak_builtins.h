@@ -17,14 +17,6 @@
 #ifndef TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CRYPTO_ADJUST_CONFIG_TWEAK_BUILTINS_H
 #define TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CRYPTO_ADJUST_CONFIG_TWEAK_BUILTINS_H
 
-#if !defined(TF_PSA_CRYPTO_CONFIG_FILES_READ)
-#error "Do not include mbedtls/config_adjust_*.h manually! This can lead to problems, " \
-    "up to and including runtime errors such as buffer overflows. " \
-    "If you're trying to fix a complaint from check_config.h, just remove " \
-    "it from your configuration file: since Mbed TLS 3.0, it is included " \
-    "automatically at the right point."
-#endif /* */
-
 /**
  * \def MBEDTLS_USE_PSA_CRYPTO
  *
