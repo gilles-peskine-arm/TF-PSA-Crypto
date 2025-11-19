@@ -161,7 +161,7 @@
 
 /* Special header to adjust the configuration to make a build
  * where all enabled mechanisms are provided both as built-in and
- * through libtestdriver1. See the comment at the top of the
+ * through drivers. See the comment at the top of the
  * header file for details. */
 #if defined(MBEDTLS_CONFIG_ADJUST_TEST_ACCELERATORS) //no-check-names
 #include "mbedtls/private/config_adjust_test_accelerators.h"
