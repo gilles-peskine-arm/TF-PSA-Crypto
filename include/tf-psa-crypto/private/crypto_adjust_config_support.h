@@ -16,8 +16,8 @@
 #ifndef TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_SUPPORT_H
 #define TF_PSA_CRYPTO_PRIVATE_CRYPTO_ADJUST_CONFIG_SUPPORT_H
 
-/* Ideally, we'd set those as defaults in mbedtls_config.h, but
- * putting an #ifdef _WIN32 in mbedtls_config.h would confuse config.py.
+/* Ideally, we'd set those as defaults in crypto_config.h, but
+ * putting an #ifdef _WIN32 in crypto_config.h would confuse config.py.
  *
  * So, adjust it here.
  * Not related to crypto, but this is the bottom of the stack. */
