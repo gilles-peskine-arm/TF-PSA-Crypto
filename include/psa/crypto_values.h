@@ -520,6 +520,15 @@
  */
 #define PSA_KEY_TYPE_CHACHA20                       ((psa_key_type_t) 0x2004)
 
+/** Key for the Ascon-AEAD128 algorithm.
+ *
+ * The corresponding algorithm is #PSA_ALG_ASCON_AEAD128.
+ *
+ * The key size is 128 bits (16 bytes) for the basic variant of Ascon,
+ * or 256 bits (32 bytes) for the nonce-masking variant.
+ */
+#define PSA_KEY_TYPE_ASCON                          ((psa_key_type_t) 0x2008)
+
 /** RSA public key.
  *
  * The size of an RSA key is the bit size of the modulus.
@@ -1281,6 +1290,19 @@
  * Implementations must support 16-byte tags and should reject other sizes.
  */
 #define PSA_ALG_CHACHA20_POLY1305               ((psa_algorithm_t) 0x05100500)
+
+/** The Ascon-AEAD128 algorithm.
+ *
+ * The corresponding key type is #PSA_KEY_TYPE_ASCON.
+ *
+ * The nonce size is 128 bytes.
+ * The tag size is 16 bytes.
+ * It can be truncated to any length between 4 and 16.
+ *
+ * This algorithm encompasses both the basic Ascon-AEAD128 and the
+ * nonce-masking variant. The key size determines the choice of variant.
+ */
+#define PSA_ALG_ASCON_AEAD128                   ((psa_algorithm_t) 0x05100700)
 
 /* In the encoding of an AEAD algorithm, the bits corresponding to
  * PSA_ALG_AEAD_TAG_LENGTH_MASK encode the length of the AEAD tag.

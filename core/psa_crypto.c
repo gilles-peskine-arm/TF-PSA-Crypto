@@ -4779,6 +4779,13 @@ static psa_status_t psa_aead_check_nonce_length(psa_algorithm_t alg,
             }
             break;
 #endif /* PSA_WANT_ALG_CHACHA20_POLY1305 */
+#if defined(PSA_WANT_ALG_ASCON_AEAD128)
+        case PSA_ALG_ASCON_AEAD128:
+            if (nonce_length == 16) {
+                return PSA_SUCCESS;
+            }
+            break;
+#endif /* PSA_WANT_ALG_ASCON_AEAD128 */
         default:
             (void) nonce_length;
             return PSA_ERROR_NOT_SUPPORTED;
@@ -4960,6 +4967,14 @@ static psa_status_t psa_validate_tag_length(psa_algorithm_t alg)
             }
             break;
 #endif /* PSA_WANT_ALG_CHACHA20_POLY1305 */
+
+#if defined(PSA_WANT_ALG_ASCON_AEAD128)
+        case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_ASCON_AEAD128, 0):
+            if (tag_len > 16) {
+                return PSA_ERROR_INVALID_ARGUMENT;
+            }
+            break;
+#endif /* PSA_WANT_ALG_ASCON_AEAD128 */
 
         default:
             (void) tag_len;
@@ -5233,6 +5248,11 @@ psa_status_t psa_aead_set_lengths(psa_aead_operation_t *operation,
             /* No length restrictions for ChaChaPoly. */
             break;
 #endif /* PSA_WANT_ALG_CHACHA20_POLY1305 */
+#if defined(PSA_WANT_ALG_ASCON_AEAD128)
+        case PSA_ALG_ASCON_AEAD128:
+            /* No length restrictions for Ascon-AEAD128. */
+            break;
+#endif /* PSA_WANT_ALG_ASCON_AEAD128 */
         default:
             break;
     }

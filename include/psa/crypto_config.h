@@ -147,6 +147,11 @@
 #define PSA_WANT_KEY_TYPE_DH_KEY_PAIR_EXPORT    1
 #define PSA_WANT_KEY_TYPE_DH_KEY_PAIR_GENERATE  1
 //#define PSA_WANT_KEY_TYPE_DH_KEY_PAIR_DERIVE    1 /* Not supported */
+
+/* Still experimental */
+//#define PSA_WANT_KEY_TYPE_ASCON 1
+//#define PSA_WANT_ALG_ASCON_AEAD128 1
+
 /** \} name SECTION Cryptographic mechanism selection (PSA API) */
 
 /**

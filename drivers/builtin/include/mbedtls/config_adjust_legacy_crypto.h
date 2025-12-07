@@ -78,6 +78,10 @@
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_ASCON_HASH256)
 #define MBEDTLS_PSA_BUILTIN_SOME_ASCON
 #endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_ASCON_AEAD128)
+#define MBEDTLS_PSA_BUILTIN_SOME_ASCON
+#endif
+
 /* Auto-enable CIPHER_C when any of the unauthenticated ciphers is builtin
  * in PSA. */
 #if defined(MBEDTLS_PSA_CRYPTO_C) && \
