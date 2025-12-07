@@ -64,7 +64,7 @@ void tf_psa_crypto_ascon_8_setup(
 void tf_psa_crypto_ascon_8_finish(
     tf_psa_crypto_ascon_8_state_t *state);
 
-/** Wipe an Ascon-Hash256 or Ascon-XOF128 operation.
+/** Wipe an Ascon-Hash256 or Ascon-XOF128 or Ascon-CXOF128 operation.
  *
  * \param[in,out] state The operation state to wipe.
  */
@@ -171,7 +171,7 @@ void tf_psa_crypto_ascon_xof128_output(
     tf_psa_crypto_ascon_8_state_t *state,
     uint8_t *output, size_t output_length);
 
-/** Wipe an Ascon-XOF128 operation.
+/** Wipe an Ascon-XOF128 or Ascon-CXOF128 operation.
  *
  * \param[in,out] state The operation state to wipe.
  */

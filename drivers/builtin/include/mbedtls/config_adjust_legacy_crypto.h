@@ -182,6 +182,10 @@
 #define MBEDTLS_MD_SHA3_512_VIA_PSA
 #define MBEDTLS_MD_SOME_PSA
 #endif
+#if defined(MBEDTLS_PSA_ACCEL_ALG_ASCON_HASH256)
+#define MBEDTLS_MD_ASCON_HASH256_VIA_PSA
+#define MBEDTLS_MD_SOME_PSA
+#endif
 
 #elif defined(MBEDTLS_PSA_CRYPTO_CLIENT)
 
@@ -229,6 +233,10 @@
 #define MBEDTLS_MD_SHA3_512_VIA_PSA
 #define MBEDTLS_MD_SOME_PSA
 #endif
+#if defined(PSA_WANT_ALG_ASCON_HASH256)
+#define MBEDTLS_MD_ASCON_VIA_PSA
+#define MBEDTLS_MD_SOME_PSA
+#endif
 
 #endif /* !MBEDTLS_PSA_CRYPTO_CLIENT && !MBEDTLS_PSA_CRYPTO_C */
 
@@ -239,7 +247,8 @@
     defined(MBEDTLS_SHA256_C) || \
     defined(MBEDTLS_SHA384_C) || \
     defined(MBEDTLS_SHA512_C) || \
-    defined(MBEDTLS_RIPEMD160_C)
+    defined(MBEDTLS_RIPEMD160_C) || \
+    defined(MBEDTLS_PSA_BUILTIN_ALG_ASCON_HASH256)
 #define MBEDTLS_MD_SOME_LEGACY
 #endif
 
