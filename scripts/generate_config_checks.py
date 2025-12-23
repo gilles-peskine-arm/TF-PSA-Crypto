@@ -33,8 +33,6 @@ def checkers_for_removed_options() -> Iterator[Checker]:
     for option in sorted(old_public - new_public):
         if option in ALWAYS_ENABLED_SINCE_1_0:
             continue
-        if option in current.internal():
-            yield Internal(option)
         else:
             yield Removed(option, 'TF-PSA_Crypto 1.0')
 
