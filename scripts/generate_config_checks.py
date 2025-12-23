@@ -35,6 +35,12 @@ def checkers_for_removed_options() -> Iterator[Checker]:
             continue
         else:
             yield Removed(option, 'TF-PSA_Crypto 1.0')
+    for option in current.internal() - new_public - old_public:
+        # Macros describing accelerator drivers are not in the config
+        # file, but it's ok if integrators put them there.
+        if option.startswith('MBEDTLS_PSA_ACCEL_'):
+            continue
+        yield Internal(option)
 
 def all_checkers() -> Iterator[Checker]:
     """Yield all checkers."""
