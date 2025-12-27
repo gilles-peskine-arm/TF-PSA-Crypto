@@ -136,6 +136,32 @@ static int can_exercise(const psa_key_attributes_t *attributes)
         return 0;
     }
 
+    /* No HMAC for SHAKE-based hashes */
+#if defined(PSA_WANT_ALG_SHAKE256_512)
+    if (alg == PSA_ALG_HMAC(PSA_ALG_SHAKE256_512) ||
+        alg == PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHAKE256_512)) {
+        return 0;
+    }
+#endif
+#if defined(PSA_WANT_ALG_SHAKE128_256)
+    if (alg == PSA_ALG_HMAC(PSA_ALG_SHAKE128_256) ||
+        alg == PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHAKE128_256)) {
+        return 0;
+    }
+#endif
+
+    /* No OID for SHAKE-based hashes */
+#if defined(PSA_WANT_ALG_SHAKE256_512)
+    if (alg == PSA_ALG_RSA_PKCS1V15_SIGN(PSA_ALG_SHAKE256_512)) {
+        return 0;
+    }
+#endif
+#if defined(PSA_WANT_ALG_SHAKE128_256)
+    if (alg == PSA_ALG_RSA_PKCS1V15_SIGN(PSA_ALG_SHAKE128_256)) {
+        return 0;
+    }
+#endif
+
     (void) key_type;
     (void) alg;
     (void) hash_alg;
