@@ -45,6 +45,8 @@ static int test_equal_status(const char *test,
 void hash_fail(int alg_arg, int expected_status_arg)
 {
     psa_status_t expected_status = expected_status_arg;
+    psa_status_t expected_verify_status =
+        expected_status == PSA_SUCCESS ? PSA_ERROR_INVALID_SIGNATURE : expected_status;
     psa_algorithm_t alg = alg_arg;
     psa_hash_operation_t operation = PSA_HASH_OPERATION_INIT;
     uint8_t input[1] = { 'A' };
@@ -58,7 +60,7 @@ void hash_fail(int alg_arg, int expected_status_arg)
     TEST_EQUAL(expected_status,
                psa_hash_compute(alg, input, sizeof(input),
                                 output, sizeof(output), &length));
-    TEST_EQUAL(expected_status,
+    TEST_EQUAL(expected_verify_status,
                psa_hash_compare(alg, input, sizeof(input),
                                 output, sizeof(output)));
 
@@ -73,6 +75,8 @@ void mac_fail(int key_type_arg, data_t *key_data,
               int alg_arg, int expected_status_arg)
 {
     psa_status_t expected_status = expected_status_arg;
+    psa_status_t expected_verify_status =
+        expected_status == PSA_SUCCESS ? PSA_ERROR_INVALID_SIGNATURE : expected_status;
     psa_key_type_t key_type = key_type_arg;
     psa_algorithm_t alg = alg_arg;
     psa_mac_operation_t operation = PSA_MAC_OPERATION_INIT;
@@ -95,13 +99,16 @@ void mac_fail(int key_type_arg, data_t *key_data,
 
     TEST_STATUS(expected_status,
                 psa_mac_sign_setup(&operation, key_id, alg));
+    psa_mac_abort(&operation);
     TEST_STATUS(expected_status,
                 psa_mac_verify_setup(&operation, key_id, alg));
     TEST_STATUS(expected_status,
                 psa_mac_compute(key_id, alg,
                                 input, sizeof(input),
                                 output, sizeof(output), &length));
-    TEST_STATUS(expected_status,
+    /* In the control case, don't accidentally verify a valid MAC */
+    output[0] ^= 1;
+    TEST_STATUS(expected_verify_status,
                 psa_mac_verify(key_id, alg,
                                input, sizeof(input),
                                output, sizeof(output)));
@@ -124,7 +131,7 @@ void cipher_fail(int key_type_arg, data_t *key_data,
     psa_cipher_operation_t operation = PSA_CIPHER_OPERATION_INIT;
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     mbedtls_svc_key_id_t key_id = MBEDTLS_SVC_KEY_ID_INIT;
-    uint8_t input[1] = { 'A' };
+    uint8_t input[32] = { 'A' };
     uint8_t output[64] = { 0 };
     size_t length = SIZE_MAX;
 
@@ -141,13 +148,19 @@ void cipher_fail(int key_type_arg, data_t *key_data,
 
     TEST_STATUS(expected_status,
                 psa_cipher_encrypt_setup(&operation, key_id, alg));
+    psa_cipher_abort(&operation);
     TEST_STATUS(expected_status,
                 psa_cipher_decrypt_setup(&operation, key_id, alg));
+
     TEST_STATUS(expected_status,
                 psa_cipher_encrypt(key_id, alg,
                                    input, sizeof(input),
                                    output, sizeof(output), &length));
-    TEST_STATUS(expected_status,
+    psa_status_t expected_decrypt_status = expected_status;
+    if (expected_decrypt_status == PSA_SUCCESS && alg == PSA_ALG_CBC_PKCS7) {
+        expected_decrypt_status = PSA_ERROR_INVALID_PADDING;
+    }
+    TEST_STATUS(expected_decrypt_status,
                 psa_cipher_decrypt(key_id, alg,
                                    input, sizeof(input),
                                    output, sizeof(output), &length));
@@ -165,12 +178,15 @@ void aead_fail(int key_type_arg, data_t *key_data,
                int alg_arg, int expected_status_arg)
 {
     psa_status_t expected_status = expected_status_arg;
+    psa_status_t expected_verify_status =
+        expected_status == PSA_SUCCESS ? PSA_ERROR_INVALID_SIGNATURE : expected_status;
     psa_key_type_t key_type = key_type_arg;
     psa_algorithm_t alg = alg_arg;
     psa_aead_operation_t operation = PSA_AEAD_OPERATION_INIT;
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     mbedtls_svc_key_id_t key_id = MBEDTLS_SVC_KEY_ID_INIT;
     uint8_t input[16] = "ABCDEFGHIJKLMNO";
+    size_t nonce_length = PSA_AEAD_NONCE_LENGTH(key_type, alg);
     uint8_t output[64] = { 0 };
     size_t length = SIZE_MAX;
 
@@ -187,16 +203,19 @@ void aead_fail(int key_type_arg, data_t *key_data,
 
     TEST_STATUS(expected_status,
                 psa_aead_encrypt_setup(&operation, key_id, alg));
+    psa_aead_abort(&operation);
     TEST_STATUS(expected_status,
                 psa_aead_decrypt_setup(&operation, key_id, alg));
+
+    TEST_LE_U(nonce_length, sizeof(input));
     TEST_STATUS(expected_status,
                 psa_aead_encrypt(key_id, alg,
-                                 input, sizeof(input),
+                                 input, nonce_length,
                                  NULL, 0, input, sizeof(input),
                                  output, sizeof(output), &length));
-    TEST_STATUS(expected_status,
+    TEST_STATUS(expected_verify_status,
                 psa_aead_decrypt(key_id, alg,
-                                 input, sizeof(input),
+                                 input, nonce_length,
                                  NULL, 0, input, sizeof(input),
                                  output, sizeof(output), &length));
 
@@ -242,7 +261,14 @@ void sign_fail(int key_type_arg, data_t *key_data,
                               input, sizeof(input),
                               output, sizeof(output), &length));
 
-    TEST_STATUS(expected_status,
+    int expect_restartable = 0;
+#if defined(MBEDTLS_ECP_RESTARTABLE)
+    if (PSA_ALG_IS_ECDSA(alg)) {
+        expect_restartable = 1;
+    }
+#endif
+
+    TEST_STATUS(expect_restartable ? expected_status : PSA_ERROR_INVALID_ARGUMENT,
                 psa_sign_hash_start(&sign_operation, key_id, alg,
                                     input, sizeof(input)));
 
@@ -265,7 +291,7 @@ void sign_fail(int key_type_arg, data_t *key_data,
                                     input, sizeof(input),
                                     output, output_length));
 
-        TEST_STATUS(expected_status,
+        TEST_STATUS(expect_restartable ? expected_status : PSA_ERROR_INVALID_ARGUMENT,
                     psa_verify_hash_start(&verify_operation, key_id, alg,
                                           input, sizeof(input),
                                           output, output_length));
