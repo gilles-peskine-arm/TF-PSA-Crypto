@@ -474,3 +474,39 @@ exit:
     PSA_DONE();
 }
 /* END_CASE */
+
+/* BEGIN_CASE */
+void pake_fail(int key_type_arg, data_t *key_data,
+               int alg_arg, int primitive_arg,
+               int expected_status_arg)
+{
+    psa_status_t expected_status = expected_status_arg;
+    psa_key_type_t key_type = key_type_arg;
+    psa_algorithm_t alg = alg_arg;
+    psa_pake_primitive_t primitive = primitive_arg;
+    psa_pake_operation_t operation = PSA_PAKE_OPERATION_INIT;
+    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
+    mbedtls_svc_key_id_t key_id = MBEDTLS_SVC_KEY_ID_INIT;
+    psa_pake_cipher_suite_t cipher_suite = PSA_PAKE_CIPHER_SUITE_INIT;
+
+    PSA_INIT();
+
+    psa_set_key_type(&attributes, key_type);
+    psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_DERIVE);
+    psa_set_key_algorithm(&attributes, alg);
+    PSA_ASSERT(psa_import_key(&attributes,
+                              key_data->x, key_data->len,
+                              &key_id));
+
+    psa_pake_cs_set_algorithm(&cipher_suite, alg);
+    psa_pake_cs_set_primitive(&cipher_suite, primitive);
+    TEST_STATUS(expected_status,
+                psa_pake_setup(&operation, key_id, &cipher_suite));
+
+exit:
+    psa_pake_abort(&operation);
+    psa_destroy_key(key_id);
+    psa_reset_key_attributes(&attributes);
+    PSA_DONE();
+}
+/* END_CASE */
