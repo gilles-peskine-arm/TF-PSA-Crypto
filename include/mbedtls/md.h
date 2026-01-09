@@ -60,6 +60,10 @@ typedef enum {
     MBEDTLS_MD_SHA3_256=0x11,  /**< The SHA3-256 message digest. */
     MBEDTLS_MD_SHA3_384=0x12,  /**< The SHA3-384 message digest. */
     MBEDTLS_MD_SHA3_512=0x13,  /**< The SHA3-512 message digest. */
+    MBEDTLS_MD_SHAKE256_512=0x15,  /**< 512 bits from SHAKE256 as a digest.
+                                    * Does not support HMAC. */
+    MBEDTLS_MD_SHAKE128_256=0x16,  /**< 256 bits from SHAKE128 as a digest.
+                                    * Does not support HMAC. */
 } mbedtls_md_type_t;
 
 /* Note: this should always be >= PSA_HASH_MAX_SIZE
@@ -70,11 +74,13 @@ typedef enum {
  * and legacy, then assume the buffer's size is PSA_HASH_MAX_SIZE in another
  * part of the code based on PSA.
  */
-#if defined(PSA_WANT_ALG_SHA_512) || defined(PSA_WANT_ALG_SHA3_512)
+#if defined(PSA_WANT_ALG_SHA_512) || defined(PSA_WANT_ALG_SHA3_512) || \
+    defined(PSA_WANT_ALG_SHAKE256_512)
 #define MBEDTLS_MD_MAX_SIZE         64  /* longest known is SHA512 */
 #elif defined(PSA_WANT_ALG_SHA_384) || defined(PSA_WANT_ALG_SHA3_384)
 #define MBEDTLS_MD_MAX_SIZE         48  /* longest known is SHA384 */
-#elif defined(PSA_WANT_ALG_SHA_256) || defined(PSA_WANT_ALG_SHA3_256)
+#elif defined(PSA_WANT_ALG_SHA_256) || defined(PSA_WANT_ALG_SHA3_256) || \
+    defined(PSA_WANT_ALG_SHAKE128_256)
 #define MBEDTLS_MD_MAX_SIZE         32  /* longest known is SHA256 */
 #elif defined(PSA_WANT_ALG_SHA_224) || defined(PSA_WANT_ALG_SHA3_224)
 #define MBEDTLS_MD_MAX_SIZE         28  /* longest known is SHA224 */
