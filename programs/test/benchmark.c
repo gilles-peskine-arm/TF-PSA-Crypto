@@ -108,7 +108,7 @@ static unsigned long mbedtls_timing_hardclock(void);
 
 #define OPTIONS                                                              \
     "md5, ripemd160, sha1, sha256, sha512,\n"                                \
-    "sha3_224, sha3_256, sha3_384, sha3_512,\n"                              \
+    "sha3_224, sha3_256, sha3_384, sha3_512, shake128_256, shake256_512,\n"  \
     "camellia, chacha20,\n"                                       \
     "aes_cbc, aes_cfb128, aes_cfb8, aes_gcm, aes_ccm, aes_xts, chachapoly\n" \
     "aes_cmac, poly1305\n"                                        \
@@ -504,7 +504,7 @@ unsigned char buf[BUFSIZE];
 
 typedef struct {
     char md5, ripemd160, sha1, sha256, sha512,
-         sha3_224, sha3_256, sha3_384, sha3_512,
+         sha3_224, sha3_256, sha3_384, sha3_512, shake128_256, shake256_512,
          aes_cbc, aes_cfb128, aes_cfb8, aes_ctr, aes_gcm, aes_ccm, aes_xts, chachapoly,
          aes_cmac,
          aria, camellia, chacha20,
@@ -559,6 +559,10 @@ int main(int argc, char *argv[])
                 todo.sha3_384 = 1;
             } else if (strcmp(argv[i], "sha3_512") == 0) {
                 todo.sha3_512 = 1;
+            } else if (strcmp(argv[i], "shake128_256") == 0) {
+                todo.shake128_256 = 1;
+            } else if (strcmp(argv[i], "shake256_512") == 0) {
+                todo.shake256_512 = 1;
             } else if (strcmp(argv[i], "aes_cbc") == 0) {
                 todo.aes_cbc = 1;
             } else if (strcmp(argv[i], "aes_cfb128") == 0) {
@@ -667,6 +671,16 @@ int main(int argc, char *argv[])
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
     if (todo.sha3_512) {
         TIME_AND_TSC("SHA3-512", mbedtls_sha3(MBEDTLS_SHA3_512, buf, BUFSIZE, tmp, 64));
+    }
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+    if (todo.shake128_256) {
+        TIME_AND_TSC("SHAKE128/256", mbedtls_sha3(MBEDTLS_SHA3_SHAKE128, buf, BUFSIZE, tmp, 64));
+    }
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+    if (todo.shake256_512) {
+        TIME_AND_TSC("SHAKE256/512", mbedtls_sha3(MBEDTLS_SHA3_SHAKE256, buf, BUFSIZE, tmp, 32));
     }
 #endif
 
