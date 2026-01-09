@@ -136,6 +136,18 @@ static const mbedtls_md_info_t mbedtls_sha3_512_info = {
 };
 #endif
 
+#if defined(PSA_WANT_ALG_SHAKE256_512) || defined(MBEDTLS_PSA_ACCEL_ALG_SHAKE256_512)
+static const mbedtls_md_info_t mbedtls_shake256_512_info = {
+    MD_INFO(MBEDTLS_MD_SHAKE256_512, 64, 0)
+};
+#endif
+
+#if defined(PSA_WANT_ALG_SHAKE128_256) || defined(MBEDTLS_PSA_ACCEL_ALG_SHAKE128_256)
+static const mbedtls_md_info_t mbedtls_shake128_256_info = {
+    MD_INFO(MBEDTLS_MD_SHAKE128_256, 32, 0)
+};
+#endif
+
 const mbedtls_md_info_t *mbedtls_md_info_from_type(mbedtls_md_type_t md_type)
 {
     switch (md_type) {
@@ -182,6 +194,14 @@ const mbedtls_md_info_t *mbedtls_md_info_from_type(mbedtls_md_type_t md_type)
 #if defined(PSA_WANT_ALG_SHA3_512) || defined(MBEDTLS_PSA_ACCEL_ALG_SHA3_512)
         case MBEDTLS_MD_SHA3_512:
             return &mbedtls_sha3_512_info;
+#endif
+#if defined(PSA_WANT_ALG_SHAKE256_512) || defined(MBEDTLS_PSA_ACCEL_ALG_SHAKE256_512)
+        case MBEDTLS_MD_SHAKE256_512:
+            return &mbedtls_shake256_512_info;
+#endif
+#if defined(PSA_WANT_ALG_SHAKE128_256) || defined(MBEDTLS_PSA_ACCEL_ALG_SHAKE128_256)
+        case MBEDTLS_MD_SHAKE128_256:
+            return &mbedtls_shake128_256_info;
 #endif
         default:
             return NULL;
@@ -243,6 +263,14 @@ static psa_algorithm_t psa_alg_of_md(const mbedtls_md_info_t *info)
 #if defined(MBEDTLS_MD_SHA3_512_VIA_PSA)
         case MBEDTLS_MD_SHA3_512:
             return PSA_ALG_SHA3_512;
+#endif
+#if defined(MBEDTLS_MD_SHAKE256_512_VIA_PSA)
+        case MBEDTLS_MD_SHAKE256_512:
+            return PSA_ALG_SHAKE256_512;
+#endif
+#if defined(MBEDTLS_MD_SHAKE128_256_VIA_PSA)
+        case MBEDTLS_MD_SHAKE128_256:
+            return PSA_ALG_SHAKE128_256;
 #endif
         default:
             return PSA_ALG_NONE;
@@ -322,10 +350,13 @@ void mbedtls_md_free(mbedtls_md_context_t *ctx)
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
             case MBEDTLS_MD_SHA3_512:
 #endif
-#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224) || \
-        defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256) || \
-        defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384) || \
-        defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+            case MBEDTLS_MD_SHAKE256_512:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+            case MBEDTLS_MD_SHAKE128_256:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH)
         mbedtls_sha3_free(ctx->md_ctx);
         break;
 #endif
@@ -418,10 +449,13 @@ int mbedtls_md_clone(mbedtls_md_context_t *dst,
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
         case MBEDTLS_MD_SHA3_512:
 #endif
-#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224) || \
-    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256) || \
-    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384) || \
-    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+        case MBEDTLS_MD_SHAKE256_512:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+        case MBEDTLS_MD_SHAKE128_256:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH)
     mbedtls_sha3_clone(dst->md_ctx, src->md_ctx);
     break;
 #endif
@@ -519,10 +553,13 @@ int mbedtls_md_setup(mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_info
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
         case MBEDTLS_MD_SHA3_512:
 #endif
-#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224) || \
-    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256) || \
-    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384) || \
-    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+        case MBEDTLS_MD_SHAKE256_512:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+        case MBEDTLS_MD_SHAKE128_256:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH)
     ALLOC(sha3);
     break;
 #endif
@@ -596,6 +633,14 @@ int mbedtls_md_starts(mbedtls_md_context_t *ctx)
         case MBEDTLS_MD_SHA3_512:
             return mbedtls_sha3_starts(ctx->md_ctx, MBEDTLS_SHA3_512);
 #endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+        case MBEDTLS_MD_SHAKE256_512:
+            return mbedtls_sha3_starts(ctx->md_ctx, MBEDTLS_SHA3_SHAKE256);
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+        case MBEDTLS_MD_SHAKE128_256:
+            return mbedtls_sha3_starts(ctx->md_ctx, MBEDTLS_SHA3_SHAKE128);
+#endif
         default:
             return MBEDTLS_ERR_MD_BAD_INPUT_DATA;
     }
@@ -657,10 +702,13 @@ int mbedtls_md_update(mbedtls_md_context_t *ctx, const unsigned char *input, siz
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
         case MBEDTLS_MD_SHA3_512:
 #endif
-#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224) || \
-    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256) || \
-    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384) || \
-    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+        case MBEDTLS_MD_SHAKE256_512:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+        case MBEDTLS_MD_SHAKE128_256:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH)
     return mbedtls_sha3_update(ctx->md_ctx, input, ilen);
 #endif
         default:
@@ -726,10 +774,13 @@ int mbedtls_md_finish(mbedtls_md_context_t *ctx, unsigned char *output)
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
         case MBEDTLS_MD_SHA3_512:
 #endif
-#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224) || \
-    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256) || \
-    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384) || \
-    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+        case MBEDTLS_MD_SHAKE256_512:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+        case MBEDTLS_MD_SHAKE128_256:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH)
     return mbedtls_sha3_finish(ctx->md_ctx, output, ctx->md_info->size);
 #endif
         default:
@@ -798,6 +849,14 @@ int mbedtls_md(const mbedtls_md_info_t *md_info, const unsigned char *input, siz
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
         case MBEDTLS_MD_SHA3_512:
             return mbedtls_sha3(MBEDTLS_SHA3_512, input, ilen, output, md_info->size);
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+        case MBEDTLS_MD_SHAKE256_512:
+            return mbedtls_sha3(MBEDTLS_SHA3_SHAKE256, input, ilen, output, md_info->size);
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+        case MBEDTLS_MD_SHAKE128_256:
+            return mbedtls_sha3(MBEDTLS_SHA3_SHAKE128, input, ilen, output, md_info->size);
 #endif
         default:
             return MBEDTLS_ERR_MD_BAD_INPUT_DATA;
@@ -885,6 +944,14 @@ static const int supported_digests[] = {
     MBEDTLS_MD_SHA3_512,
 #endif
 
+#if defined(PSA_WANT_ALG_SHAKE256_512)
+    MBEDTLS_MD_SHAKE256_512,
+#endif
+
+#if defined(PSA_WANT_ALG_SHAKE128_256)
+    MBEDTLS_MD_SHAKE128_256,
+#endif
+
     MBEDTLS_MD_NONE
 };
 
@@ -933,11 +1000,21 @@ static const md_name_entry md_names[] = {
 #if defined(PSA_WANT_ALG_SHA3_512)
     { "SHA3-512", MBEDTLS_MD_SHA3_512 },
 #endif
+#if defined(PSA_WANT_ALG_SHAKE256_512)
+    { "SHAKE256/512", MBEDTLS_MD_SHAKE256_512 },
+#endif
+#if defined(PSA_WANT_ALG_SHAKE128_256)
+    { "SHAKE128/256", MBEDTLS_MD_SHAKE128_256 },
+#endif
     { NULL, MBEDTLS_MD_NONE },
 };
 
 int mbedtls_md_hmac_setup(mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_info)
 {
+    if (md_info->block_size == 0) {
+        /* HMAC not supported for this hash */
+        return MBEDTLS_ERR_MD_BAD_INPUT_DATA;
+    }
     ctx->hmac_ctx = mbedtls_calloc(2, md_info->block_size);
     if (ctx->hmac_ctx == NULL) {
         mbedtls_md_free(ctx);
