@@ -74,6 +74,12 @@ psa_status_t mbedtls_psa_hash_abort(
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
         case PSA_ALG_SHA3_512:
 #endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+        case PSA_ALG_SHAKE256_512:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+        case PSA_ALG_SHAKE128_256:
+#endif
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH)
             mbedtls_sha3_free(&operation->ctx.sha3);
             break;
@@ -163,6 +169,18 @@ psa_status_t mbedtls_psa_hash_setup(
             ret = mbedtls_sha3_starts(&operation->ctx.sha3, MBEDTLS_SHA3_512);
             break;
 #endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+        case PSA_ALG_SHAKE256_512:
+            mbedtls_sha3_init(&operation->ctx.sha3);
+            ret = mbedtls_sha3_starts(&operation->ctx.sha3, MBEDTLS_SHA3_SHAKE256);
+            break;
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+        case PSA_ALG_SHAKE128_256:
+            mbedtls_sha3_init(&operation->ctx.sha3);
+            ret = mbedtls_sha3_starts(&operation->ctx.sha3, MBEDTLS_SHA3_SHAKE128);
+            break;
+#endif
         default:
             return PSA_ALG_IS_HASH(alg) ?
                    PSA_ERROR_NOT_SUPPORTED :
@@ -236,6 +254,12 @@ psa_status_t mbedtls_psa_hash_clone(
 #endif
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
         case PSA_ALG_SHA3_512:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+        case PSA_ALG_SHAKE256_512:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+        case PSA_ALG_SHAKE128_256:
 #endif
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH)
             mbedtls_sha3_clone(&target_operation->ctx.sha3,
@@ -313,6 +337,12 @@ psa_status_t mbedtls_psa_hash_update(
 #endif
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
         case PSA_ALG_SHA3_512:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+        case PSA_ALG_SHAKE256_512:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+        case PSA_ALG_SHAKE128_256:
 #endif
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH)
     ret = mbedtls_sha3_update(&operation->ctx.sha3,
@@ -400,6 +430,12 @@ psa_status_t mbedtls_psa_hash_finish(
 #endif
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
         case PSA_ALG_SHA3_512:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+        case PSA_ALG_SHAKE256_512:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+        case PSA_ALG_SHAKE128_256:
 #endif
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH)
     ret = mbedtls_sha3_finish(&operation->ctx.sha3, hash, hash_size);

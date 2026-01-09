@@ -927,6 +927,7 @@
 #define PSA_ALG_SHA3_384                        ((psa_algorithm_t) 0x02000012)
 /** SHA3-512 */
 #define PSA_ALG_SHA3_512                        ((psa_algorithm_t) 0x02000013)
+
 /** The first 512 bits (64 bytes) of the SHAKE256 output.
  *
  * This is the prehashing for Ed448ph (see #PSA_ALG_ED448PH). For other
@@ -934,6 +935,13 @@
  * has the same output size and a (theoretically) higher security strength.
  */
 #define PSA_ALG_SHAKE256_512                    ((psa_algorithm_t) 0x02000015)
+/** The first 256 bits (32 bytes) of the SHAKE128 output.
+ *
+ * This is an official prehashing for HashML-DSA. For other
+ * scenarios where a hash function based on SHA3/SHAKE is desired, SHA3-256
+ * has the same output size and a (theoretically) higher security strength.
+ */
+#define PSA_ALG_SHAKE128_256                    ((psa_algorithm_t) 0x02000016)
 
 /** In a hash-and-sign algorithm policy, allow any hash algorithm.
  *

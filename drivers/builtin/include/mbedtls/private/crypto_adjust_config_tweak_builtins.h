@@ -30,11 +30,29 @@
  */
 #define MBEDTLS_USE_PSA_CRYPTO
 
+/* Enable MBEDTLS_SHA3_SHAKE128 if any SHAKE128-based mechanism is enabled.
+ * This can differ from MBEDTLS_PSA_BUILTIN_ALG_SHAKE128: if only a
+ * hash based on SHAKE128 is enabled, we want SHAKE128 in sha3.c, but not
+ * SHAKE128 in psa_crypto_xof.c. */
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
+#define MBEDTLS_SHA3_WANT_SHAKE128
+#endif
+
+/* Enable MBEDTLS_SHA3_SHAKE256 if any SHAKE256-based mechanism is enabled.
+ * This can differ from MBEDTLS_PSA_BUILTIN_ALG_SHAKE256: if only a
+ * hash based on SHAKE256 is enabled, we want SHAKE256 in sha3.c, but not
+ * SHAKE256 in psa_crypto_xof.c. */
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512)
+#define MBEDTLS_SHA3_WANT_SHAKE256
+#endif
+
 /* Whether any hash based on sha3 is enabled in psa_crypto_hash.c. */
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224) || \
     defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256) || \
     defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384) || \
-    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
+    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512) || \
+    defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256_512) || \
+    defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128_256)
 #define MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH
 #endif
 
