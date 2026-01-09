@@ -1,2 +1,2 @@
 Features
-    * Add SHA3 SHAKE128 and SHA3 SHAKE256.
+    * Add SHAKE128/256 and SHAKE256/512 hash algorithms.
