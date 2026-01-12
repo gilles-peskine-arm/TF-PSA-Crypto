@@ -814,4 +814,15 @@
 #endif /* !MBEDTLS_PSA_ACCEL_ALG_CHACHA20_POLY1305 */
 #endif /* PSA_WANT_ALG_CHACHA20_POLY1305 */
 
+/* At this time, there's no PSA XOF API yet, so there's no way for users
+ * to request SHAKE support. There's also no algorithm that uses SHAKE yet,
+ * so no definition of MBEDTLS_PSA_BUILTIN_ALG_SHAKE128 or
+ * MBEDTLS_PSA_BUILTIN_ALG_SHAKE256 is present in the source code,
+ * which makes check_names.py complain. Have never-enabled definitions
+ * just to pacify check_names. */
+#if 0
+#define MBEDTLS_PSA_BUILTIN_ALG_SHAKE128 1
+#define MBEDTLS_PSA_BUILTIN_ALG_SHAKE256 1
+#endif
+
 #endif /* TF_PSA_CRYPTO_MBEDTLS_PRIVATE_CRYPTO_ADJUST_CONFIG_ENABLE_BUILTINS_H */
