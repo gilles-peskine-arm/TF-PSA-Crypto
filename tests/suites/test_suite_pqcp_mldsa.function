@@ -26,7 +26,7 @@ void smoke_87(data_t *seed)
     uint8_t *signature = NULL;
     const size_t signature_size = MLDSA_BYTES(87);
     size_t signature_length = SIZE_MAX;
-    uint8_t message[14] = "This is a test";
+    uint8_t message[14] MBEDTLS_ATTRIBUTE_UNTERMINATED_STRING = "This is a test";
     const size_t message_length = sizeof(message);
 
     /* Sanity checks on the test data */
