@@ -30,7 +30,7 @@
 
 /* Use our own zeroize function */
 #define MLD_CONFIG_CUSTOM_ZEROIZE
-#define mld_zeroize_native mbedtls_platform_zeroize
+#define mld_zeroize mbedtls_platform_zeroize
 
 /* Don't expose internal functions to the linker. This lets the compiler
  * optimize more. */
