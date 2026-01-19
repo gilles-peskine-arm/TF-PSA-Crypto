@@ -1990,7 +1990,7 @@
  * \warning This option is experimental. It may change or be removed without
  *          notice.
  *
- * Module:  drivers/pqca/mldsa-native
+ * Module:  drivers/pqcp/src/wrap_mldsa_native.c
  *
  * Uncomment to include mldsa-native in libtfpsacrypto.
  */
@@ -2009,7 +2009,7 @@
  *
  * Requires: TF_PSA_CRYPTO_PQCP_MLDSA_ENABLED
  *
- * Module:  drivers/pqca/mldsa-native
+ * Module:  drivers/pqcp/src/wrap_mldsa_native.c
  *
  * Uncomment to include MLDSA-87 from mldsa-native in libtfpsacrypto.
  */
