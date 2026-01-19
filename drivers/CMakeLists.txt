@@ -13,8 +13,7 @@ set(TF_PSA_CRYPTO_DRIVERS_INCLUDE_DIRS
         ${CMAKE_CURRENT_SOURCE_DIR}/builtin/include
         ${CMAKE_CURRENT_SOURCE_DIR}/everest/include
         ${CMAKE_CURRENT_SOURCE_DIR}/p256-m
-        # Uncomment when pqcp starts having a public header
-        #${CMAKE_CURRENT_SOURCE_DIR}/pqcp/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/pqcp/include
 )
 
 if(CMAKE_COMPILER_IS_MSVC)
