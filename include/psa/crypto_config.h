@@ -862,6 +862,12 @@
  */
 #define MBEDTLS_PK_WRITE_C
 
+/* Enable SHAKE internally. There is no API yet. These macros are temporarily
+ * exposed in crypto_config.h for technical reasons, but are not part of the
+ * API of TF-PSA-Crypto and will become internal soon. */
+//#define MBEDTLS_PSA_BUILTIN_ALG_SHAKE128
+//#define MBEDTLS_PSA_BUILTIN_ALG_SHAKE256
+
 /** \} name SECTION: Cryptographic mechanism selection (extended API) */
 
 /**
@@ -1584,10 +1590,7 @@
 
 /**
  * Enable the verified implementations of ECDH primitives from Project Everest
- * (currently only Curve25519). This feature changes the layout of ECDH
- * contexts and therefore is a compatibility break for applications that access
- * fields of a mbedtls_ecdh_context structure directly. See also
- * MBEDTLS_ECDH_LEGACY_CONTEXT in drivers/builtin/include/mbedtls/private/ecdh.h.
+ * (currently only Curve25519).
  *
  * The Everest code is provided under the Apache 2.0 license only; therefore enabling this
  * option is not compatible with taking the library under the GPL v2.0-or-later license.

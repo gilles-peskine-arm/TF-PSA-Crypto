@@ -36,13 +36,13 @@
 /** The buffer is too small to write to. */
 #define MBEDTLS_ERR_ECP_BUFFER_TOO_SMALL                  PSA_ERROR_BUFFER_TOO_SMALL
 /** The requested feature is not available, for example, the requested curve is not supported. */
-#define MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE               -0x4E80
+#define MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE               PSA_ERROR_NOT_SUPPORTED
 /** The signature is not valid. */
 #define MBEDTLS_ERR_ECP_VERIFY_FAILED                     PSA_ERROR_INVALID_SIGNATURE
 /** Memory allocation failed. */
 #define MBEDTLS_ERR_ECP_ALLOC_FAILED                      PSA_ERROR_INSUFFICIENT_MEMORY
 /** Generation of random value, such as ephemeral key, failed. */
-#define MBEDTLS_ERR_ECP_RANDOM_FAILED                     -0x4D00
+#define MBEDTLS_ERR_ECP_RANDOM_FAILED                     PSA_ERROR_INSUFFICIENT_ENTROPY
 /** Invalid private or public key. */
 #define MBEDTLS_ERR_ECP_INVALID_KEY                       -0x4C80
 /** Operation in progress, call again with the same parameters to continue. */
@@ -522,9 +522,9 @@ mbedtls_ecp_curve_type mbedtls_ecp_get_type(const mbedtls_ecp_group *grp);
  *
  * \note            This function returns information about all curves
  *                  supported by the library. Some curves may not be
- *                  supported for all algorithms. Call mbedtls_ecdh_can_do()
- *                  or mbedtls_ecdsa_can_do() to check if a curve is
- *                  supported for ECDH or ECDSA.
+ *                  supported for all algorithms. Call
+ *                  mbedtls_ecdsa_can_do() to check if a curve is
+ *                  supported for ECDSA.
  *
  * \return          A statically allocated array. The last entry is 0.
  */
@@ -537,9 +537,9 @@ const mbedtls_ecp_curve_info *mbedtls_ecp_curve_list(void);
  *
  * \note            This function returns information about all curves
  *                  supported by the library. Some curves may not be
- *                  supported for all algorithms. Call mbedtls_ecdh_can_do()
- *                  or mbedtls_ecdsa_can_do() to check if a curve is
- *                  supported for ECDH or ECDSA.
+ *                  supported for all algorithms. Call
+ *                  mbedtls_ecdsa_can_do() to check if a curve is
+ *                  supported for ECDSA.
  *
  * \return          A statically allocated array,
  *                  terminated with MBEDTLS_ECP_DP_NONE.

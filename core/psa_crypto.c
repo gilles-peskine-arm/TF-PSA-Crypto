@@ -48,7 +48,6 @@
 #include "mbedtls/private/ccm.h"
 #include "mbedtls/private/cmac.h"
 #include "mbedtls/constant_time.h"
-#include "mbedtls/private/ecdh.h"
 #include "mbedtls/private/ecp.h"
 #include "mbedtls/private/entropy.h"
 #include "mbedtls/private/error_common.h"
@@ -481,19 +480,8 @@ psa_status_t mbedtls_to_psa_error(int ret)
             return PSA_ERROR_INSUFFICIENT_ENTROPY;
 #endif
 
-#if defined(MBEDTLS_ECP_LIGHT)
         case MBEDTLS_ERR_ECP_INVALID_KEY:
             return PSA_ERROR_INVALID_ARGUMENT;
-        case MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE:
-            return PSA_ERROR_NOT_SUPPORTED;
-        case MBEDTLS_ERR_ECP_RANDOM_FAILED:
-            return PSA_ERROR_INSUFFICIENT_ENTROPY;
-
-#if defined(MBEDTLS_ECP_RESTARTABLE)
-        case MBEDTLS_ERR_ECP_IN_PROGRESS:
-            return PSA_OPERATION_INCOMPLETE;
-#endif
-#endif
 
         case MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED:
             return PSA_ERROR_CORRUPTION_DETECTED;

@@ -38,9 +38,6 @@ struct mbedtls_pk_info_t {
     /** Type name */
     const char *name;
 
-    /** Get key size in bits */
-    size_t (*get_bitlen)(mbedtls_pk_context *pk);
-
     /** Tell if the context implements this type (e.g. ECKEY can do ECDSA) */
     int (*can_do)(mbedtls_pk_type_t type);
 
@@ -68,9 +65,6 @@ struct mbedtls_pk_info_t {
                         void *rs_ctx);
 #endif /* MBEDTLS_ECP_RESTARTABLE */
 
-    /** Check public-private key pair */
-    int (*check_pair_func)(mbedtls_pk_context *pub, mbedtls_pk_context *prv);
-
 #if defined(MBEDTLS_ECP_RESTARTABLE)
     /** Allocate the restart context */
     void *(*rs_alloc_func)(mbedtls_pk_rs_op_t op_type);
@@ -78,9 +72,6 @@ struct mbedtls_pk_info_t {
     /** Free the restart context */
     void (*rs_free_func)(void *rs_ctx);
 #endif /* MBEDTLS_ECP_RESTARTABLE */
-
-    /** Interface with the debug module */
-    void (*debug_func)(mbedtls_pk_context *pk, mbedtls_pk_debug_item *items);
 
 };
 #if defined(PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY)
