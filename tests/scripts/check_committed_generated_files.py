@@ -13,6 +13,7 @@ from mbedtls_framework import generated_files
 
 GENERATORS = [
     config_macros.Current(shadow_missing_ok=True),
+    generated_files.TestDataGenerator('framework/util/generate_mldsa_tests.py')
 ]
 
 if __name__ == '__main__':
