@@ -526,7 +526,6 @@ static int execute_tests(int argc, const char **argv)
     int arg_index = 1;
     const char *next_arg;
     size_t testfile_index, i, cnt;
-    int ret;
     unsigned total_errors = 0, total_tests = 0, total_skipped = 0;
     FILE *file;
     string_buffer_t line = { NULL, 0 };
@@ -690,6 +689,7 @@ static int execute_tests(int argc, const char **argv)
             }
 
             // If there are no unmet dependencies execute the test
+            int ret = DISPATCH_TEST_SUCCESS; /*also covers test case skip*/
             if (unmet_dep_count == 0) {
                 mbedtls_test_info_reset();
 
@@ -707,7 +707,8 @@ static int execute_tests(int argc, const char **argv)
 #endif /* __unix__ || __APPLE__ __MACH__ */
 
                 function_id = strtoul(params[0], NULL, 10);
-                if ((ret = check_test(function_id)) == DISPATCH_TEST_SUCCESS) {
+                ret = check_test(function_id);
+                if (ret == DISPATCH_TEST_SUCCESS) {
                     ret = convert_params(cnt - 1, params + 1, int_params);
                     if (DISPATCH_TEST_SUCCESS == ret) {
                         ret = dispatch_test(function_id, (void **) (params + 1));
