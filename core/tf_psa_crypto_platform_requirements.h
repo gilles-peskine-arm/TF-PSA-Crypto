@@ -27,6 +27,11 @@
 #define _POSIX_C_SOURCE 200112L
 #endif
 
+/* With GNU libc, define all the things, even when compiling with -pedantic. */
+#if !defined(_GNU_SOURCE)
+#define _GNU_SOURCE
+#endif
+
 /* On Mingw-w64, force the use of a C99-compliant printf() and friends.
  * This is necessary on older versions of Mingw and/or Windows runtimes
  * where snprintf does not always zero-terminate the buffer, and does
