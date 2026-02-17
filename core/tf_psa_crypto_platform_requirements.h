@@ -15,6 +15,96 @@
 #ifndef TF_PSA_CRYPTO_TF_PSA_CRYPTO_PLATFORM_REQUIREMENTS_H
 #define TF_PSA_CRYPTO_TF_PSA_CRYPTO_PLATFORM_REQUIREMENTS_H
 
+#if defined(__clang__) &&  (__clang_major__ >= 4)
+
+/* Ideally, we would simply use MBEDTLS_ARCH_IS_ARMV8_A in the following #if,
+ * but that is defined by build_info.h, and we need this block to happen first. */
+#if defined(__ARM_ARCH)
+#if __ARM_ARCH >= 8
+#define MBEDTLS_AESCE_ARCH_IS_ARMV8_A
+#endif
+#endif
+
+#if defined(MBEDTLS_AESCE_ARCH_IS_ARMV8_A) && !defined(__ARM_FEATURE_CRYPTO)
+/* The intrinsic declaration are guarded by predefined ACLE macros in clang:
+ * these are normally only enabled by the -march option on the command line.
+ * By defining the macros ourselves we gain access to those declarations without
+ * requiring -march on the command line.
+ *
+ * `arm_neon.h` is included by tf_psa_crypto_common.h, so we put these defines
+ * at the top of this file, before any includes. This is necessary with
+ * Clang <=15.x. With Clang 16.0 and above, these macro definitions are
+ * no longer required, but they're harmless. See
+ * https://reviews.llvm.org/D131064
+ */
+#define __ARM_FEATURE_CRYPTO 1
+/* See: https://arm-software.github.io/acle/main/acle.html#cryptographic-extensions
+ *
+ * `__ARM_FEATURE_CRYPTO` is deprecated, but we need to continue to specify it
+ * for older compilers.
+ */
+#define __ARM_FEATURE_AES    1
+#define MBEDTLS_ENABLE_ARM_CRYPTO_EXTENSIONS_COMPILER_FLAG
+#endif
+
+#endif /* defined(__clang__) &&  (__clang_major__ >= 4) */
+
+#if defined(__clang__) &&  (__clang_major__ >= 4)
+
+/* Ideally, we would simply use MBEDTLS_ARCH_IS_ARMV8_A in the following #if,
+ * but that is defined by build_info.h, and we need this block to happen first. */
+#if defined(__ARM_ARCH) && (__ARM_ARCH_PROFILE == 'A')
+#if __ARM_ARCH >= 8
+#define MBEDTLS_SHA256_ARCH_IS_ARMV8_A
+#endif
+#endif
+
+#if defined(MBEDTLS_SHA256_ARCH_IS_ARMV8_A) && !defined(__ARM_FEATURE_CRYPTO)
+/*
+ * The intrinsic declaration are guarded by predefined ACLE macros in clang:
+ * these are normally only enabled by the -march option on the command line.
+ * By defining the macros ourselves we gain access to those declarations without
+ * requiring -march on the command line.
+ *
+ * `arm_neon.h` is included by tf_psa_crypto_common.h, so we put these defines
+ * at the top of this file, before any includes but after the intrinsic
+ * declaration. This is necessary with
+ * Clang <=15.x. With Clang 16.0 and above, these macro definitions are
+ * no longer required, but they're harmless. See
+ * https://reviews.llvm.org/D131064
+ */
+#define __ARM_FEATURE_CRYPTO 1
+/* See: https://arm-software.github.io/acle/main/acle.html#cryptographic-extensions
+ *
+ * `__ARM_FEATURE_CRYPTO` is deprecated, but we need to continue to specify it
+ * for older compilers.
+ */
+#define __ARM_FEATURE_SHA2   1
+#define MBEDTLS_ENABLE_ARM_CRYPTO_EXTENSIONS_COMPILER_FLAG
+#endif
+
+#endif /* defined(__clang__) &&  (__clang_major__ >= 4) */
+
+#if defined(__aarch64__) && !defined(__ARM_FEATURE_SHA512) && \
+    defined(__clang__) && __clang_major__ >= 7
+/*
+ * The intrinsic declaration are guarded by predefined ACLE macros in clang:
+ * these are normally only enabled by the -march option on the command line.
+ * By defining the macros ourselves we gain access to those declarations without
+ * requiring -march on the command line.
+ *
+ * `arm_neon.h` is included by tf_psa_crypto_common.h, so we put these defines
+ * at the top of this file, before any includes but after the intrinsic
+ * declaration. This is necessary with
+ * Clang <=15.x. With Clang 16.0 and above, these macro definitions are
+ * no longer required, but they're harmless. See
+ * https://reviews.llvm.org/D131064
+ */
+#define __ARM_FEATURE_SHA512 1
+#define MBEDTLS_ENABLE_ARM_SHA3_EXTENSIONS_COMPILER_FLAG
+#endif
+
+
 #ifndef __STDC_WANT_LIB_EXT1__
 /* Ask for the C11 gmtime_s() and memset_s() if available */
 #define __STDC_WANT_LIB_EXT1__ 1
@@ -27,7 +117,12 @@
 #define _POSIX_C_SOURCE 200112L
 #endif
 
-/* With GNU libc, define all the things, even when compiling with -pedantic. */
+/* With GNU libc, define all the things, even when compiling with -pedantic.
+ * Things we like to see include:
+ * - syscall() for getrandom() on Linux
+ * - explicit_bzero() to implement mbedtls_platform_zeroize()
+ * - SIG_SETMASK for runtime detection of Arm CPU extensions
+ */
 #if !defined(_GNU_SOURCE)
 #define _GNU_SOURCE
 #endif
