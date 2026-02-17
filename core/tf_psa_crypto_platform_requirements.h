@@ -29,11 +29,7 @@
 /* The intrinsic declarations are guarded by predefined ACLE macros in clang:
  * these are normally only enabled by the -march option on the command line.
  * By defining the macros ourselves we gain access to those declarations without
- * requiring -march on the command line.
- *
- * `arm_neon.h` is included by tf_psa_crypto_common.h, so we put these defines
- * at the top of this file, before any includes but after the intrinsic
- * declaration. This is necessary with
+ * requiring -march on the command line. This is necessary with
  * Clang <=15.x. With Clang 16.0 and above, these macro definitions are
  * no longer required, but they're harmless. See
  * https://reviews.llvm.org/D131064
