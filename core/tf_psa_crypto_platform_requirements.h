@@ -76,6 +76,13 @@
 #define _GNU_SOURCE
 #endif
 
+/* On OpenBSD, needed to make <string.h> declare explicit_bzero()
+ * (<strings.h> doesn't declare it). Not used on FreeBSD or NetBSD,
+ * but causes Glibc to complain. */
+#if defined(__OpenBSD__) && !defined(_BSD_SOURCE)
+#define _BSD_SOURCE
+#endif
+
 /* On Mingw-w64, force the use of a C99-compliant printf() and friends.
  * This is necessary on older versions of Mingw and/or Windows runtimes
  * where snprintf does not always zero-terminate the buffer, and does
