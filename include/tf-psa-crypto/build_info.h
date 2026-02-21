@@ -96,10 +96,6 @@
     (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #endif
 
-#if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_DEPRECATE)
-#define _CRT_SECURE_NO_DEPRECATE 1
-#endif
-
 #if defined(TF_PSA_CRYPTO_CONFIG_FILES_READ)
 #error \
     "Something went wrong: TF_PSA_CRYPTO_CONFIG_FILES_READ defined before reading the config files!"
