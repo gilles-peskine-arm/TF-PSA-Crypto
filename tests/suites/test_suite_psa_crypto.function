@@ -27,6 +27,11 @@
 #define TEST_DRIVER_LOCATION 0x7fffff
 #endif
 
+/* While ML-DSA is only supported in the lower layers but not in the API,
+ * we test that it isn't supported. We do need to know the encoding of
+ * key types and algorithms, which is not yet defined in public headers. */
+#include "psa_crypto_mldsa.h"
+
 #if defined(MBEDTLS_THREADING_PTHREAD)
 #include "mbedtls/threading.h"
 #endif
@@ -152,14 +157,6 @@ static int construct_fake_rsa_key(unsigned char *buffer,
     return len;
 }
 #endif /* MBEDTLS_ASN1_WRITE_C */
-
-/* While ML-DSA is only supported in the lower layers but not in the API,
- * we only test that it isn't supported. We do need to know the upcoming
- * encoding of key types. */
-#define PSA_KEY_TYPE_ML_DSA_KEY_PAIR ((psa_key_type_t) 0x7002)
-#define PSA_KEY_TYPE_ML_DSA_PUBLIC_KEY ((psa_key_type_t) 0x6002)
-#define PSA_ALG_ML_DSA ((psa_algorithm_t) 0x06004400)
-#define PSA_ALG_DETERMINISTIC_ML_DSA ((psa_algorithm_t) 0x06004500)
 
 static int exercise_mac_setup(psa_key_type_t key_type,
                               const unsigned char *key_bytes,
