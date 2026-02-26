@@ -300,6 +300,7 @@ function(tf_psa_crypto_add_test_suite suite_name)
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/test
         PRIVATE ${TF_PSA_CRYPTO_FRAMEWORK_DIR}/tests/include
+        PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../core
         PRIVATE ${PROJECT_SOURCE_DIR}/core
         PRIVATE ${PROJECT_SOURCE_DIR}/drivers/builtin/src
         PRIVATE ${PROJECT_SOURCE_DIR}/drivers/pqcp/src
