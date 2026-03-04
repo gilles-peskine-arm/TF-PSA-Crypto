@@ -9,11 +9,12 @@ include(${PROJECT_SOURCE_DIR}/drivers/driver.cmake)
 foreach (target IN LISTS target_libraries)
     target_include_directories(${target}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../builtin/src
+        PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../core
         PRIVATE mldsa-native/mldsa
     )
     if(TF_PSA_CRYPTO_TEST_DRIVER)
         target_include_directories(${target}
-            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../builtin/src
             PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/tests/include
             ${TF_PSA_CRYPTO_FRAMEWORK_DIR}/tests/include
             ${PROJECT_SOURCE_DIR}/tests/include/test
