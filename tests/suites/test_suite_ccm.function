@@ -76,8 +76,9 @@ void mbedtls_ccm_self_test()
 /* END_CASE */
 
 /* BEGIN_CASE */
-void mbedtls_ccm_setkey(int cipher_id, int key_size, int result)
+void mbedtls_ccm_setkey(int cipher_id_arg, int key_size, int result)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     unsigned char key[32];
@@ -186,10 +187,11 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE */
-void mbedtls_ccm_encrypt_and_tag(int cipher_id, data_t *key,
+void mbedtls_ccm_encrypt_and_tag(int cipher_id_arg, data_t *key,
                                  data_t *msg, data_t *iv,
                                  data_t *add, data_t *result)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     size_t n1, n1_add;
@@ -244,9 +246,10 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE */
-void mbedtls_ccm_star_no_tag(int cipher_id, int mode, data_t *key,
+void mbedtls_ccm_star_no_tag(int cipher_id_arg, int mode, data_t *key,
                              data_t *msg, data_t *iv, data_t *result)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     uint8_t *output = NULL;
@@ -271,11 +274,12 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE */
-void mbedtls_ccm_auth_decrypt(int cipher_id, data_t *key,
+void mbedtls_ccm_auth_decrypt(int cipher_id_arg, data_t *key,
                               data_t *msg, data_t *iv,
                               data_t *add, int expected_tag_len, int result,
                               data_t *expected_msg)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     size_t n1, n1_add;
@@ -335,12 +339,13 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE */
-void mbedtls_ccm_star_encrypt_and_tag(int cipher_id,
+void mbedtls_ccm_star_encrypt_and_tag(int cipher_id_arg,
                                       data_t *key, data_t *msg,
                                       data_t *source_address, data_t *frame_counter,
                                       int sec_level, data_t *add,
                                       data_t *expected_result, int output_ret)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     unsigned char iv[13];
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
@@ -422,12 +427,13 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE */
-void mbedtls_ccm_star_auth_decrypt(int cipher_id,
+void mbedtls_ccm_star_auth_decrypt(int cipher_id_arg,
                                    data_t *key, data_t *msg,
                                    data_t *source_address, data_t *frame_counter,
                                    int sec_level, data_t *add,
                                    data_t *expected_result, int output_ret)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     unsigned char iv[13];
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
@@ -502,10 +508,11 @@ exit:
 
 /* Skip auth data, provide full text */
 /* BEGIN_CASE */
-void mbedtls_ccm_skip_ad(int cipher_id, int mode,
+void mbedtls_ccm_skip_ad(int cipher_id_arg, int mode,
                          data_t *key, data_t *msg, data_t *iv,
                          data_t *result, data_t *tag)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     uint8_t *output = NULL;
@@ -542,10 +549,11 @@ exit:
 
 /* Provide auth data, skip full text */
 /* BEGIN_CASE */
-void mbedtls_ccm_skip_update(int cipher_id, int mode,
+void mbedtls_ccm_skip_update(int cipher_id_arg, int mode,
                              data_t *key, data_t *iv, data_t *add,
                              data_t *tag)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     uint8_t *output = NULL;
@@ -572,10 +580,11 @@ exit:
 
 /* Provide too much auth data */
 /* BEGIN_CASE */
-void mbedtls_ccm_overflow_ad(int cipher_id, int mode,
+void mbedtls_ccm_overflow_ad(int cipher_id_arg, int mode,
                              data_t *key, data_t *iv,
                              data_t *add)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
 
@@ -598,10 +607,11 @@ exit:
 
 /* Provide unexpected auth data */
 /* BEGIN_CASE */
-void mbedtls_ccm_unexpected_ad(int cipher_id, int mode,
+void mbedtls_ccm_unexpected_ad(int cipher_id_arg, int mode,
                                data_t *key, data_t *iv,
                                data_t *add)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
 
@@ -620,10 +630,11 @@ exit:
 
 /* Provide unexpected plaintext/ciphertext data */
 /* BEGIN_CASE */
-void mbedtls_ccm_unexpected_text(int cipher_id, int mode,
+void mbedtls_ccm_unexpected_text(int cipher_id_arg, int mode,
                                  data_t *key, data_t *msg, data_t *iv,
                                  data_t *add)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     uint8_t *output = NULL;
@@ -650,9 +661,10 @@ exit:
 
 /* Provide incomplete auth data and finish */
 /* BEGIN_CASE */
-void mbedtls_ccm_incomplete_ad(int cipher_id, int mode,
+void mbedtls_ccm_incomplete_ad(int cipher_id_arg, int mode,
                                data_t *key, data_t *iv, data_t *add)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     uint8_t *output = NULL;
@@ -681,10 +693,11 @@ exit:
 /* Provide complete auth data on first update_ad.
  * Provide unexpected auth data on second update_ad */
 /* BEGIN_CASE */
-void mbedtls_ccm_full_ad_and_overflow(int cipher_id, int mode,
+void mbedtls_ccm_full_ad_and_overflow(int cipher_id_arg, int mode,
                                       data_t *key, data_t *iv,
                                       data_t *add)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
 
@@ -707,10 +720,11 @@ exit:
 /* Provide incomplete auth data on first update_ad.
  * Provide too much auth data on second update_ad */
 /* BEGIN_CASE */
-void mbedtls_ccm_incomplete_ad_and_overflow(int cipher_id, int mode,
+void mbedtls_ccm_incomplete_ad_and_overflow(int cipher_id_arg, int mode,
                                             data_t *key, data_t *iv,
                                             data_t *add)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     uint8_t add_second_buffer[2];
@@ -739,10 +753,11 @@ exit:
 
 /* Provide too much plaintext/ciphertext */
 /* BEGIN_CASE */
-void mbedtls_ccm_overflow_update(int cipher_id, int mode,
+void mbedtls_ccm_overflow_update(int cipher_id_arg, int mode,
                                  data_t *key, data_t *msg, data_t *iv,
                                  data_t *add)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     uint8_t *output = NULL;
@@ -772,10 +787,11 @@ exit:
 
 /* Provide incomplete plaintext/ciphertext and finish */
 /* BEGIN_CASE */
-void mbedtls_ccm_incomplete_update(int cipher_id, int mode,
+void mbedtls_ccm_incomplete_update(int cipher_id_arg, int mode,
                                    data_t *key, data_t *msg, data_t *iv,
                                    data_t *add)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     uint8_t *output = NULL;
@@ -811,10 +827,11 @@ exit:
 /* Provide full plaintext/ciphertext of first update
  * Provide unexpected plaintext/ciphertext on second update */
 /* BEGIN_CASE */
-void mbedtls_ccm_full_update_and_overflow(int cipher_id, int mode,
+void mbedtls_ccm_full_update_and_overflow(int cipher_id_arg, int mode,
                                           data_t *key, data_t *msg, data_t *iv,
                                           data_t *add)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     uint8_t *output = NULL;
@@ -844,10 +861,11 @@ exit:
 /* Provide incomplete plaintext/ciphertext of first update
  * Provide too much plaintext/ciphertext on second update */
 /* BEGIN_CASE */
-void mbedtls_ccm_incomplete_update_overflow(int cipher_id, int mode,
+void mbedtls_ccm_incomplete_update_overflow(int cipher_id_arg, int mode,
                                             data_t *key, data_t *msg, data_t *iv,
                                             data_t *add)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     uint8_t *output = NULL;
@@ -883,9 +901,10 @@ exit:
 
 /* Finish without passing any auth data or plaintext/ciphertext input */
 /* BEGIN_CASE */
-void mbedtls_ccm_instant_finish(int cipher_id, int mode,
+void mbedtls_ccm_instant_finish(int cipher_id_arg, int mode,
                                 data_t *key, data_t *iv)
 {
+    mbedtls_cipher_id_t cipher_id = (mbedtls_cipher_id_t) cipher_id_arg;
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
     uint8_t *output = NULL;

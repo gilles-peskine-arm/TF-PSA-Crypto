@@ -113,7 +113,8 @@ exit:
  * individual ciphers, and it doesn't work with the PSA wrappers. So don't do
  * it, and instead start with a fresh context.
  */
-static int cipher_reset_key(mbedtls_cipher_context_t *ctx, int cipher_id,
+static int cipher_reset_key(mbedtls_cipher_context_t *ctx,
+                            mbedtls_cipher_type_t cipher_type,
                             const data_t *key, int direction)
 {
     mbedtls_cipher_free(ctx);
@@ -121,11 +122,11 @@ static int cipher_reset_key(mbedtls_cipher_context_t *ctx, int cipher_id,
 
     {
         TEST_ASSERT(0 == mbedtls_cipher_setup(ctx,
-                                              mbedtls_cipher_info_from_type(cipher_id)));
+                                              mbedtls_cipher_info_from_type(cipher_type)));
     }
 
     TEST_ASSERT(0 == mbedtls_cipher_setkey(ctx, key->x, 8 * key->len,
-                                           direction));
+                                           (mbedtls_operation_t) direction));
     return 1;
 
 exit:
@@ -162,9 +163,9 @@ void mbedtls_cipher_list()
 
     for (cipher_type = mbedtls_cipher_list(); *cipher_type != 0; cipher_type++) {
         const mbedtls_cipher_info_t *info =
-            mbedtls_cipher_info_from_type(*cipher_type);
+            mbedtls_cipher_info_from_type((mbedtls_cipher_type_t) *cipher_type);
         mbedtls_test_set_step(*cipher_type);
-        if (!check_cipher_info(*cipher_type, info)) {
+        if (!check_cipher_info((mbedtls_cipher_type_t) *cipher_type, info)) {
             goto exit;
         }
     }
@@ -192,7 +193,7 @@ void cipher_invalid_param_unconditional()
 
     /* Ensure that there is at least 1 supported cipher, otherwise exit gracefully */
     TEST_ASSUME(*cipher_list != 0);
-    valid_info = mbedtls_cipher_info_from_type(*cipher_list);
+    valid_info = mbedtls_cipher_info_from_type((mbedtls_cipher_type_t) *cipher_list);
 
     TEST_ASSERT(mbedtls_cipher_setup(&valid_ctx, valid_info) == 0);
 
@@ -303,7 +304,7 @@ void cipher_invalid_param_conditional()
 {
     mbedtls_cipher_context_t valid_ctx;
 
-    mbedtls_operation_t invalid_operation = 100;
+    mbedtls_operation_t invalid_operation = (mbedtls_operation_t) 100;
     unsigned char valid_buffer[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 };
     int valid_size = sizeof(valid_buffer);
     int valid_bitlen = valid_size * 8;
@@ -370,9 +371,10 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE */
-void enc_dec_buf(int cipher_id, char *cipher_string, int key_len,
+void enc_dec_buf(int cipher_type_arg, char *cipher_string, int key_len,
                  int length_val, int pad_mode)
 {
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     size_t length = length_val, outlen, total_len, i, block_size, iv_len;
     unsigned char key[64];
     unsigned char iv[16];
@@ -395,7 +397,7 @@ void enc_dec_buf(int cipher_id, char *cipher_string, int key_len,
     memset(key, 0x2a, sizeof(key));
 
     /* Check and get info structures */
-    cipher_info = mbedtls_cipher_info_from_type(cipher_id);
+    cipher_info = mbedtls_cipher_info_from_type(cipher_type);
     TEST_ASSERT(NULL != cipher_info);
     TEST_ASSERT(mbedtls_cipher_info_from_string(cipher_string) == cipher_info);
     TEST_ASSERT(strcmp(mbedtls_cipher_info_get_name(cipher_info),
@@ -410,8 +412,8 @@ void enc_dec_buf(int cipher_id, char *cipher_string, int key_len,
 
 #if defined(MBEDTLS_CIPHER_MODE_WITH_PADDING)
     if (-1 != pad_mode) {
-        TEST_ASSERT(0 == mbedtls_cipher_set_padding_mode(&ctx_dec, pad_mode));
-        TEST_ASSERT(0 == mbedtls_cipher_set_padding_mode(&ctx_enc, pad_mode));
+        TEST_ASSERT(0 == mbedtls_cipher_set_padding_mode(&ctx_dec, (mbedtls_cipher_mode_t) pad_mode));
+        TEST_ASSERT(0 == mbedtls_cipher_set_padding_mode(&ctx_enc, (mbedtls_cipher_mode_t) pad_mode));
     }
 #else
     (void) pad_mode;
@@ -509,9 +511,10 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE */
-void enc_fail(int cipher_id, int pad_mode, int key_len, int length_val,
+void enc_fail(int cipher_type_arg, int pad_mode, int key_len, int length_val,
               int ret)
 {
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     size_t length = length_val;
     unsigned char key[32];
     unsigned char iv[16];
@@ -533,7 +536,7 @@ void enc_fail(int cipher_id, int pad_mode, int key_len, int length_val,
     memset(encbuf, 0, 64);
 
     /* Check and get info structures */
-    cipher_info = mbedtls_cipher_info_from_type(cipher_id);
+    cipher_info = mbedtls_cipher_info_from_type(cipher_type);
     TEST_ASSERT(NULL != cipher_info);
 
     /* Initialise context */
@@ -659,11 +662,12 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE */
-void enc_dec_buf_multipart(int cipher_id, int key_len, int first_length_val,
+void enc_dec_buf_multipart(int cipher_type_arg, int key_len, int first_length_val,
                            int second_length_val, int pad_mode,
                            int first_encrypt_output_len, int second_encrypt_output_len,
                            int first_decrypt_output_len, int second_decrypt_output_len)
 {
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     size_t first_length = first_length_val;
     size_t second_length = second_length_val;
     size_t length = first_length + second_length;
@@ -694,7 +698,7 @@ void enc_dec_buf_multipart(int cipher_id, int key_len, int first_length_val,
     memset(decbuf, 0, 64);
 
     /* Initialise enc and dec contexts */
-    cipher_info = mbedtls_cipher_info_from_type(cipher_id);
+    cipher_info = mbedtls_cipher_info_from_type(cipher_type);
     TEST_ASSERT(NULL != cipher_info);
 
     TEST_ASSERT(0 == mbedtls_cipher_setup(&ctx_dec, cipher_info));
@@ -793,11 +797,12 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE */
-void decrypt_test_vec(int cipher_id, int pad_mode, data_t *key,
+void decrypt_test_vec(int cipher_type_arg, int pad_mode, data_t *key,
                       data_t *iv, data_t *cipher,
                       data_t *clear, data_t *ad, data_t *tag,
                       int finish_result, int tag_result)
 {
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     unsigned char output[265];
     mbedtls_cipher_context_t ctx;
     size_t outlen, total_len;
@@ -813,7 +818,7 @@ void decrypt_test_vec(int cipher_id, int pad_mode, data_t *key,
 
     /* Prepare context */
     TEST_ASSERT(0 == mbedtls_cipher_setup(&ctx,
-                                          mbedtls_cipher_info_from_type(cipher_id)));
+                                          mbedtls_cipher_info_from_type(cipher_type)));
     TEST_ASSERT(0 == mbedtls_cipher_setkey(&ctx, key->x, 8 * key->len, MBEDTLS_DECRYPT));
 #if defined(MBEDTLS_CIPHER_MODE_WITH_PADDING)
     if (pad_mode != -1) {
@@ -870,11 +875,12 @@ exit:
  * cipher is constant-time. In particular, AES test cases need to depend
  * on HAVE_CONSTANT_TIME_AES.
  */
-void decrypt_test_vec_cf(int cipher_id, int pad_mode, data_t *key,
+void decrypt_test_vec_cf(int cipher_type_arg, int pad_mode, data_t *key,
                          data_t *iv, data_t *cipher,
                          data_t *clear, data_t *ad, data_t *tag,
                          int expected_finish_result, int tag_result)
 {
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     unsigned char output[265];
     mbedtls_cipher_context_t ctx;
     size_t outlen, total_len;
@@ -893,7 +899,7 @@ void decrypt_test_vec_cf(int cipher_id, int pad_mode, data_t *key,
 
     /* Prepare context */
     TEST_ASSERT(0 == mbedtls_cipher_setup(&ctx,
-                                          mbedtls_cipher_info_from_type(cipher_id)));
+                                          mbedtls_cipher_info_from_type(cipher_type)));
     TEST_ASSERT(0 == mbedtls_cipher_setkey(&ctx, key->x, 8 * key->len, MBEDTLS_DECRYPT));
 #if defined(MBEDTLS_CIPHER_MODE_WITH_PADDING)
     if (pad_mode != -1) {
@@ -945,11 +951,12 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE */
-void decrypt_padded_test_vec(int cipher_id, int pad_mode, data_t *key,
+void decrypt_padded_test_vec(int cipher_type_arg, int pad_mode, data_t *key,
                              data_t *iv, data_t *cipher,
                              data_t *clear, data_t *ad, data_t *tag,
                              int expected_finish_result, int tag_result)
 {
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     unsigned char output[265];
     mbedtls_cipher_context_t ctx;
     size_t outlen, total_len;
@@ -965,7 +972,7 @@ void decrypt_padded_test_vec(int cipher_id, int pad_mode, data_t *key,
 
     /* Prepare context */
     TEST_ASSERT(0 == mbedtls_cipher_setup(&ctx,
-                                          mbedtls_cipher_info_from_type(cipher_id)));
+                                          mbedtls_cipher_info_from_type(cipher_type)));
     TEST_ASSERT(0 == mbedtls_cipher_setkey(&ctx, key->x, 8 * key->len, MBEDTLS_DECRYPT));
 #if defined(MBEDTLS_CIPHER_MODE_WITH_PADDING)
     if (pad_mode != -1) {
@@ -1037,11 +1044,12 @@ exit:
  * cipher is constant-time. In particular, AES test cases need to depend
  * on HAVE_CONSTANT_TIME_AES.
  */
-void decrypt_padded_test_vec_cf(int cipher_id, int pad_mode, data_t *key,
+void decrypt_padded_test_vec_cf(int cipher_type_arg, int pad_mode, data_t *key,
                                 data_t *iv, data_t *cipher,
                                 data_t *clear, data_t *ad, data_t *tag,
                                 int expected_finish_result, int tag_result)
 {
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     unsigned char output[265];
     mbedtls_cipher_context_t ctx;
     size_t outlen, total_len;
@@ -1060,7 +1068,7 @@ void decrypt_padded_test_vec_cf(int cipher_id, int pad_mode, data_t *key,
 
     /* Prepare context */
     TEST_ASSERT(0 == mbedtls_cipher_setup(&ctx,
-                                          mbedtls_cipher_info_from_type(cipher_id)));
+                                          mbedtls_cipher_info_from_type(cipher_type)));
     TEST_ASSERT(0 == mbedtls_cipher_setkey(&ctx, key->x, 8 * key->len, MBEDTLS_DECRYPT));
 #if defined(MBEDTLS_CIPHER_MODE_WITH_PADDING)
     if (pad_mode != -1) {
@@ -1126,7 +1134,7 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE depends_on:MBEDTLS_CIPHER_MODE_AEAD */
-void auth_crypt_tv(int cipher_id, data_t *key, data_t *iv,
+void auth_crypt_tv(int cipher_type_arg, data_t *key, data_t *iv,
                    data_t *ad, data_t *cipher, data_t *tag,
                    char *result, data_t *clear)
 {
@@ -1136,7 +1144,7 @@ void auth_crypt_tv(int cipher_id, data_t *key, data_t *iv,
      * this results in the expected plaintext, and that
      * decryption and encryption are inverse to one another.
      */
-
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     int ret;
     int using_nist_kw, using_nist_kw_padding;
 
@@ -1168,18 +1176,18 @@ void auth_crypt_tv(int cipher_id, data_t *key, data_t *iv,
     /*
      * Are we using NIST_KW? with padding?
      */
-    using_nist_kw_padding = cipher_id == MBEDTLS_CIPHER_AES_128_KWP ||
-                            cipher_id == MBEDTLS_CIPHER_AES_192_KWP ||
-                            cipher_id == MBEDTLS_CIPHER_AES_256_KWP;
-    using_nist_kw = cipher_id == MBEDTLS_CIPHER_AES_128_KW ||
-                    cipher_id == MBEDTLS_CIPHER_AES_192_KW ||
-                    cipher_id == MBEDTLS_CIPHER_AES_256_KW ||
+    using_nist_kw_padding = cipher_type == MBEDTLS_CIPHER_AES_128_KWP ||
+                            cipher_type == MBEDTLS_CIPHER_AES_192_KWP ||
+                            cipher_type == MBEDTLS_CIPHER_AES_256_KWP;
+    using_nist_kw = cipher_type == MBEDTLS_CIPHER_AES_128_KW ||
+                    cipher_type == MBEDTLS_CIPHER_AES_192_KW ||
+                    cipher_type == MBEDTLS_CIPHER_AES_256_KW ||
                     using_nist_kw_padding;
 
     /*
      * Prepare context for decryption
      */
-    if (!cipher_reset_key(&ctx, cipher_id, key,
+    if (!cipher_reset_key(&ctx, cipher_type, key,
                           MBEDTLS_DECRYPT)) {
         goto exit;
     }
@@ -1245,7 +1253,7 @@ void auth_crypt_tv(int cipher_id, data_t *key, data_t *iv,
      */
     if (strcmp(result, "FAIL") != 0) {
         /* prepare context for encryption */
-        if (!cipher_reset_key(&ctx, cipher_id, key,
+        if (!cipher_reset_key(&ctx, cipher_type, key,
                               MBEDTLS_ENCRYPT)) {
             goto exit;
         }
@@ -1307,10 +1315,11 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE */
-void test_vec_ecb(int cipher_id, int operation, data_t *key,
+void test_vec_ecb(int cipher_type_arg, int operation, data_t *key,
                   data_t *input, data_t *result, int finish_result
                   )
 {
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     mbedtls_cipher_context_t ctx;
     unsigned char output[32];
     size_t outlen;
@@ -1321,7 +1330,7 @@ void test_vec_ecb(int cipher_id, int operation, data_t *key,
 
     /* Prepare context */
     TEST_ASSERT(0 == mbedtls_cipher_setup(&ctx,
-                                          mbedtls_cipher_info_from_type(cipher_id)));
+                                          mbedtls_cipher_info_from_type(cipher_type)));
 
 
     TEST_ASSERT(0 == mbedtls_cipher_setkey(&ctx, key->x, 8 * key->len, operation));
@@ -1346,10 +1355,11 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE depends_on:MBEDTLS_CIPHER_MODE_WITH_PADDING */
-void test_vec_crypt(int cipher_id, int operation, data_t *key,
+void test_vec_crypt(int cipher_type_arg, int operation, data_t *key,
                     data_t *iv, data_t *input, data_t *result,
                     int finish_result)
 {
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     mbedtls_cipher_context_t ctx;
     unsigned char output[32];
     size_t outlen;
@@ -1360,7 +1370,7 @@ void test_vec_crypt(int cipher_id, int operation, data_t *key,
 
     /* Prepare context */
     TEST_ASSERT(0 == mbedtls_cipher_setup(&ctx,
-                                          mbedtls_cipher_info_from_type(cipher_id)));
+                                          mbedtls_cipher_info_from_type(cipher_type)));
 
     TEST_ASSERT(0 == mbedtls_cipher_setkey(&ctx, key->x, 8 * key->len, operation));
     if (MBEDTLS_MODE_CBC == ctx.cipher_info->mode) {
@@ -1389,10 +1399,11 @@ exit:
  * cipher is constant-time. In particular, AES test cases need to depend
  * on HAVE_CONSTANT_TIME_AES.
  */
-void test_vec_crypt_cf(int cipher_id, int pad_mode, int operation, data_t *key,
+void test_vec_crypt_cf(int cipher_type_arg, int pad_mode, int operation, data_t *key,
                        data_t *iv, data_t *input, data_t *result,
                        int expected_finish_result)
 {
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     mbedtls_cipher_context_t ctx;
     unsigned char output[32];
     size_t outlen;
@@ -1406,7 +1417,7 @@ void test_vec_crypt_cf(int cipher_id, int pad_mode, int operation, data_t *key,
 
     /* Prepare context */
     TEST_ASSERT(0 == mbedtls_cipher_setup(&ctx,
-                                          mbedtls_cipher_info_from_type(cipher_id)));
+                                          mbedtls_cipher_info_from_type(cipher_type)));
 
     TEST_ASSERT(0 == mbedtls_cipher_setkey(&ctx, key->x, 8 * key->len, operation));
     if (MBEDTLS_MODE_CBC == ctx.cipher_info->mode) {
@@ -1435,14 +1446,15 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE depends_on:MBEDTLS_CIPHER_MODE_WITH_PADDING */
-void set_padding(int cipher_id, int pad_mode, int ret)
+void set_padding(int cipher_type_arg, int pad_mode, int ret)
 {
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     const mbedtls_cipher_info_t *cipher_info;
     mbedtls_cipher_context_t ctx;
 
     mbedtls_cipher_init(&ctx);
 
-    cipher_info = mbedtls_cipher_info_from_type(cipher_id);
+    cipher_info = mbedtls_cipher_info_from_type(cipher_type);
     TEST_ASSERT(NULL != cipher_info);
     TEST_ASSERT(0 == mbedtls_cipher_setup(&ctx, cipher_info));
 
@@ -1487,9 +1499,10 @@ void check_padding(int pad_mode, data_t *input,
 /* END_CASE */
 
 /* BEGIN_CASE */
-void iv_len_validity(int cipher_id, char *cipher_string,
+void iv_len_validity(int cipher_type_arg, char *cipher_string,
                      int iv_len_val, int ret)
 {
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     size_t iv_len = iv_len_val;
     unsigned char iv[16];
 
@@ -1507,7 +1520,7 @@ void iv_len_validity(int cipher_id, char *cipher_string,
     mbedtls_cipher_init(&ctx_enc);
 
     /* Check and get info structures */
-    cipher_info = mbedtls_cipher_info_from_type(cipher_id);
+    cipher_info = mbedtls_cipher_info_from_type(cipher_type);
     TEST_ASSERT(NULL != cipher_info);
     TEST_ASSERT(mbedtls_cipher_info_from_string(cipher_string) == cipher_info);
     TEST_ASSERT(strcmp(mbedtls_cipher_info_get_name(cipher_info),
@@ -1527,8 +1540,9 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE depends_on:MBEDTLS_CIPHER_MODE_WITH_PADDING */
-void check_set_padding(int cipher_id)
+void check_set_padding(int cipher_type_arg)
 {
+    mbedtls_cipher_type_t cipher_type = (mbedtls_cipher_type_t) cipher_type_arg;
     mbedtls_cipher_context_t ctx;
     unsigned char *key = NULL;
     unsigned char iv[16] = { 0 };
@@ -1540,7 +1554,7 @@ void check_set_padding(int cipher_id)
 
     mbedtls_cipher_init(&ctx);
 
-    cipher_info = mbedtls_cipher_info_from_type(cipher_id);
+    cipher_info = mbedtls_cipher_info_from_type(cipher_type);
 
     if (cipher_info->mode != MBEDTLS_MODE_CBC) {
         TEST_FAIL("Cipher mode must be CBC");
