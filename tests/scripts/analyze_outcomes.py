@@ -26,6 +26,50 @@ INTERNAL_TEST_CASES = {
 class CoverageTask(outcome_analysis.CoverageTask):
     """Justify test cases that are never executed."""
 
+    # Tests that may not be covered by TF-PSA-Crypto testing, but are
+    # covered by Mbed TLS testing.
+    # https://github.com/Mbed-TLS/TF-PSA-Crypto/issues/740
+    IGNORED_TESTS = {
+        'test_suite_aes.xts': [
+            re.compile('.*'),
+        ],
+        'test_suite_block_cipher': [
+            re.compile('.*'),
+        ],
+        'test_suite_ccm': [
+            re.compile('CCM finish check-boundary .*'),
+        ],
+        'test_suite_cipher.aes': [
+            re.compile('.*XTS.*'),
+        ],
+        'test_suite_config.psa_boolean': [
+            re.compile('.* !.*'),
+        ],
+        'test_suite_ctr_drbg': [
+            re.compile('.*AES-128.*'),
+        ],
+        'test_suite_pk': [
+            'PK size macro: MBEDTLS_PK_ECP_PRV_DER_MAX_BYTES: only curve is P-256',
+            'PK size macro: MBEDTLS_PK_ECP_PUB_DER_MAX_BYTES: only curve is P-256',
+            'PK size macro: MBEDTLS_PK_MAX_PUBKEY_RAW_LEN: RSA, !ECC',
+        ],
+        'test_suite_psa_crypto_not_supported.generated': [
+            re.compile('.*'),
+        ],
+        'test_suite_psa_crypto_op_fail.generated': [
+            re.compile('.* !.*'),
+        ],
+        'test_suite_psa_crypto_persistent_key': [
+            re.compile('Load key: owner=[^0].*'),
+        ],
+        'test_suite_random': [
+            'PSA classic wrapper: HMAC_DRBG max',
+            'PSA classic wrapper: external RNG large',
+        ],
+    }
+
+    # Tests that are not covered for a tracked reason, and that
+    # were also not covered by Mbed TLS testing as of Mbed TLS 4.1.0.
     UNCOVERED_TESTS = {
         'test_suite_config.psa_boolean': [
             # We don't test with HMAC disabled.
