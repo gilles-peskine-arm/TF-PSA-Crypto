@@ -214,3 +214,117 @@ exit:
     mbedtls_free(buf);
 }
 /* END_CASE */
+
+/* BEGIN_CASE */
+void sign_message_multipart_deterministic(
+    int type_arg, int bits_arg, int alg_arg,
+    data_t *key_buffer,
+    data_t *context,
+    data_t *message1, data_t *message2,
+    data_t *expected_signature,
+    psa_status_t expected_setup_status,
+    psa_status_t expected_context_status,
+    psa_status_t expected_finish_status)
+{
+    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
+    psa_sign_operation_t operation;
+    memset(&operation, 0, sizeof(operation));
+    uint8_t *signature = NULL;
+
+    PSA_INIT();
+
+    psa_set_key_type(&attributes, type_arg);
+    psa_set_key_bits(&attributes, bits_arg);
+
+    TEST_EQUAL(psa_driver_wrapper_sign_setup(&operation,
+                                             &attributes,
+                                             key_buffer->x, key_buffer->len,
+                                             alg_arg),
+               expected_setup_status);
+    if (expected_setup_status != PSA_SUCCESS) {
+        goto exit;
+    }
+
+    TEST_EQUAL(psa_driver_wrapper_sign_set_context(&operation,
+                                                   context->x, context->len),
+               expected_context_status);
+    if (expected_context_status != PSA_SUCCESS) {
+        goto exit;
+    }
+
+    PSA_ASSERT(psa_driver_wrapper_sign_update(&operation,
+                                              message1->x, message1->len));
+
+    PSA_ASSERT(psa_driver_wrapper_sign_update(&operation,
+                                              message2->x, message2->len));
+
+    size_t signature_size = PSA_SIGN_OUTPUT_SIZE(type_arg, bits_arg, alg_arg);
+    TEST_CALLOC(signature, signature_size);
+    size_t signature_length = SIZE_MAX;
+    TEST_EQUAL(psa_driver_wrapper_sign_finish(&operation,
+                                              signature, signature_size,
+                                              &signature_length),
+               expected_finish_status);
+    if (expected_finish_status == PSA_SUCCESS) {
+        TEST_MEMORY_COMPARE(signature, signature_length,
+                            expected_signature->x, expected_signature->len);
+    }
+
+exit:
+    mbedtls_free(signature);
+    psa_reset_key_attributes(&attributes);
+    PSA_DONE();
+}
+/* END_CASE */
+
+/* BEGIN_CASE */
+void verify_message_multipart(
+    int type_arg, int bits_arg, int alg_arg,
+    data_t *key_buffer,
+    data_t *context,
+    data_t *message1, data_t *message2,
+    data_t *signature,
+    psa_status_t expected_setup_status,
+    psa_status_t expected_context_status,
+    psa_status_t expected_finish_status)
+{
+    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
+    psa_verify_operation_t operation;
+    memset(&operation, 0, sizeof(operation));
+
+    PSA_INIT();
+
+    psa_set_key_type(&attributes, type_arg);
+    psa_set_key_bits(&attributes, bits_arg);
+
+    TEST_EQUAL(psa_driver_wrapper_verify_setup(&operation,
+                                               &attributes,
+                                               key_buffer->x, key_buffer->len,
+                                               alg_arg),
+               expected_setup_status);
+    if (expected_setup_status != PSA_SUCCESS) {
+        goto exit;
+    }
+
+    TEST_EQUAL(psa_driver_wrapper_verify_set_context(&operation,
+                                                     context->x, context->len),
+               expected_context_status);
+    if (expected_context_status != PSA_SUCCESS) {
+        goto exit;
+    }
+
+    PSA_ASSERT(psa_driver_wrapper_verify_update(&operation,
+                                                message1->x, message1->len));
+
+    PSA_ASSERT(psa_driver_wrapper_verify_update(&operation,
+                                                message2->x, message2->len));
+
+    TEST_EQUAL(psa_driver_wrapper_verify_finish(&operation,
+                                                signature->x, signature->len),
+               expected_finish_status);
+
+exit:
+    psa_reset_key_attributes(&attributes);
+    PSA_DONE();
+}
+/* END_CASE */
