@@ -49,6 +49,13 @@
     ((alg) == PSA_ALG_DETERMINISTIC_ML_DSA || \
      (alg) == PSA_ALG_ML_DSA)
 
+#define PSA_MLDSA_SIGNATURE_SIZE(bits)          \
+    ((bits) == 44 ? 2420u :                     \
+     (bits) == 65 ? 3309u :                     \
+     (bits) == 87 ? 4627u :                     \
+     0u)
+#define PSA_MLDSA_SIGNATURE_MAX_SIZE (PSA_MLDSA_SIGNATURE_SIZE(87))
+
 /** Export the public key of an ML-DSA key pair.
  *
  * \param[in] attributes        The key attributes.
