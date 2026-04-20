@@ -14,6 +14,71 @@
 #include <mbedtls/platform_util.h>
 #include <mbedtls/platform.h>
 
+#if defined(TF_PSA_CRYPTO_PQCP_OWN_SHAKE)
+#include "../mldsa-native/mldsa/src/fips202/fips202.h"
+
+/* The mldsa-native header defines the SHAKE context types, declares
+ * the functions that work on that type, and declares macros mld_xxx.
+ *
+ * We need to expose the context type in our public headers since it
+ * appears in multipart operation structure, but we don't want to
+ * expose the function declarations. (Maybe we will in the future, but
+ * at the time of writing, it would be a hassle because fips202.h
+ * references many headers of mldsa-native that we don't want to
+ * install.)
+ *
+ * Therefore we define a public type which has (at least) the same size
+ * and alignment requirements as context type from mldsa-native, but
+ * is a distinct type according to the C language. We call the
+ * mldsa-native SHAKE functions through a wrapper that puns the
+ * pointer type. We pun via a union to a byte array to make the compiler
+ * understand that this must be aliasing of memory.
+ *
+ * In this source file, we want to call the SHAKE256 operations through
+ * the same names as when using the PSA callbacks for SHAKE, i.e. the
+ * mld_xxx names. So we replace the mld_xxx macros by wrappers that
+ * do the necessary pointer punning.
+ */
+
+#undef mld_shake256_init
+#undef mld_shake256_absorb
+#undef mld_shake256_finalize
+#undef mld_shake256_squeeze
+#undef mld_shake256_release
+
+static inline void mld_shake256_init(tf_psa_crypto_mldsa_shake256_t *state)
+{
+    MLD_NAMESPACE(shake256_init)((mld_shake256ctx *) &state->bytes);
+}
+
+static inline void mld_shake256_absorb(tf_psa_crypto_mldsa_shake256_t *state,
+                                       const uint8_t *in, size_t inlen)
+{
+    MLD_NAMESPACE(shake256_absorb)((mld_shake256ctx *) &state->bytes,
+                                   in, inlen);
+}
+
+static inline void mld_shake256_finalize(tf_psa_crypto_mldsa_shake256_t *state)
+{
+    MLD_NAMESPACE(shake256_finalize)((mld_shake256ctx *) &state->bytes);
+}
+
+static inline void mld_shake256_squeeze(uint8_t *out, size_t outlen,
+                                        tf_psa_crypto_mldsa_shake256_t *state)
+{
+    MLD_NAMESPACE(shake256_squeeze)(out, outlen,
+                                    (mld_shake256ctx *) &state->bytes);
+}
+
+static inline void mld_shake256_release(tf_psa_crypto_mldsa_shake256_t *state)
+{
+    MLD_NAMESPACE(shake256_release)((mld_shake256ctx *) &state->bytes);
+}
+
+#else /* TF_PSA_CRYPTO_PQCP_OWN_SHAKE */
+#include "fips202_psa.h"
+#endif
+
 /* The size of an ML-DSA seed in bytes.
  * The PSA API uses the seed as the private key.
  * (Some other ML-DSA interfaces use the "expanded secret", which is
@@ -281,8 +346,29 @@ psa_status_t tf_psa_crypto_mldsa_verify_setup(
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
-    /* not implemented yet */
-    (void) key_buffer;
+    /* Keep a copy of the public key, since it will be needed at the end of
+     * the operation. It's large so we keep it on the heap. */
+    operation->key = mbedtls_calloc(1, key_buffer_size);
+    if (operation->key == NULL) {
+        return PSA_ERROR_INSUFFICIENT_MEMORY;
+    }
+    operation->key_length = key_buffer_size;
+    memcpy(operation->key, key_buffer, key_buffer_size);
+
+    /* Hash the public key */
+    mld_shake256_init(&operation->shake);
+    mld_shake256_absorb(&operation->shake, key_buffer, key_buffer_size);
+    mld_shake256_finalize(&operation->shake);
+    uint8_t tr[MLDSA_CRHBYTES];
+    mld_shake256_squeeze(tr, sizeof(tr), &operation->shake);
+    mld_shake256_release(&operation->shake);
+    mld_shake256_init(&operation->shake);
+    mld_shake256_absorb(&operation->shake, tr, sizeof(tr));
+
+    /* Hash the domain separation prefix */
+    tr[0] = 0;                  /* pure ML-DSA (1 for Hash-ML-DSA) */
+    tr[1] = 0;                  /* context length */
+    mld_shake256_absorb(&operation->shake, tr, 2);
 
     return PSA_SUCCESS;
 }
@@ -291,11 +377,8 @@ psa_status_t tf_psa_crypto_mldsa_update(
     tf_psa_crypto_mldsa_operation_t *operation,
     const uint8_t *input, size_t input_length)
 {
-    /* not implemented yet */
-    (void) operation;
-    (void) input;
-    (void) input_length;
-    return PSA_ERROR_GENERIC_ERROR;
+    mld_shake256_absorb(&operation->shake, input, input_length);
+    return PSA_SUCCESS;
 }
 
 psa_status_t tf_psa_crypto_mldsa_sign_finish(
@@ -313,10 +396,37 @@ psa_status_t tf_psa_crypto_mldsa_verify_finish(
     tf_psa_crypto_mldsa_operation_t *operation,
     const uint8_t *signature, size_t signature_length)
 {
-    /* not implemented yet */
-    (void) signature;
-    (void) signature_length;
-    return tf_psa_crypto_mldsa_abort(operation);
+    if (operation->parameter_set != 87) {
+        return PSA_ERROR_NOT_SUPPORTED;
+    }
+    if (signature_length != MLDSA87_BYTES) {
+        return PSA_ERROR_INVALID_SIGNATURE;
+    }
+    if (operation->key_length != MLDSA87_PUBLICKEYBYTES) {
+        return PSA_ERROR_CORRUPTION_DETECTED;
+    }
+
+    uint8_t mu[MLDSA_CRHBYTES];
+    mld_shake256_finalize(&operation->shake);
+    mld_shake256_squeeze(mu, sizeof(mu), &operation->shake);
+    mld_shake256_release(&operation->shake);
+
+    int ret = tf_psa_crypto_pqcp_mldsa87_verify_internal(
+        signature, signature_length,
+        mu, sizeof(mu),
+        NULL, 0,
+        operation->key, 1);
+
+    psa_status_t abort_status = tf_psa_crypto_mldsa_abort(operation);
+    if (abort_status != PSA_SUCCESS) {
+        return abort_status;
+    }
+
+    if (ret == MLD_ERR_FAIL) {
+        return PSA_ERROR_INVALID_SIGNATURE;
+    } else {
+        return pqcp_to_psa_error(ret);
+    }
 }
 
 psa_status_t tf_psa_crypto_mldsa_abort(
@@ -331,6 +441,7 @@ psa_status_t tf_psa_crypto_mldsa_abort(
      */
     if (operation->parameter_set != 0) {
         mbedtls_zeroize_and_free(operation->key, operation->key_length);
+        mld_shake256_release(&operation->shake);
     }
     mbedtls_platform_zeroize(operation, sizeof(*operation));
     return PSA_SUCCESS;
