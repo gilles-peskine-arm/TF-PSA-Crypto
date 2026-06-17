@@ -354,7 +354,8 @@ exit:
 
 /* BEGIN_CASE */
 void sign_deterministic_multipart_finish(
-    int type, int bits, int alg, data_t *seed,
+    int type, int bits, int alg,
+    data_t *key_setup, data_t *key_finish,
     data_t *message,
     data_t *expected_signature, int signature_size_delta,
     int expected_finish_status)
@@ -374,12 +375,12 @@ void sign_deterministic_multipart_finish(
 
     PSA_ASSERT(tf_psa_crypto_mldsa_sign_setup(&operation,
                                               &attributes,
-                                              seed->x, seed->len,
+                                              key_setup->x, key_setup->len,
                                               alg));
     PSA_ASSERT(tf_psa_crypto_mldsa_update(&operation,
                                           message->x, message->len));
     TEST_EQUAL(tf_psa_crypto_mldsa_sign_finish(&operation,
-                                               seed->x, seed->len,
+                                               key_finish->x, key_finish->len,
                                                signature, signature_size,
                                                &signature_length),
                expected_finish_status);
