@@ -1,3 +1,23 @@
+= TF-PSA-Crypto 1.1.0 branch released 2026-07-03
+
+API changes
+   * Remove macros related to finite-field DSA in PSA. They were useless since
+     the feature was never implemented.
+
+Security
+   * Added advice about compiler options in SECURITY.md.
+
+Bugfix
+   * Fix a problem in library/alignment.h where the Zephyr Project use
+     a pre-defined macro '__packed' which collides with the IAR keyword
+     '__packed', causing the typedefs of unaligned types to remain aligned.
+     Fixes mbedtls issue #10334
+   * Doxygen documentation `apidoc` is now built into CMake's binary folder,
+     not in-tree. Fixes #381.
+   * Fixed a bug which prevented the inclusion of standard C library header
+     files from the user provided configuration file. Fixes #784.
+   * library/alignment.h: Fix 'MBEDTLS_GCC_VERSION' is not defined error
+
 = TF-PSA-Crypto 1.1.0 branch released 2026-03-31
 
 Removals
