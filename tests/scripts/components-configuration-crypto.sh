@@ -468,9 +468,6 @@ component_test_accel_hash () {
     ctest
 }
 
-CMAKE_BUILTIN_BUILD_DIR="tf-psa-crypto/drivers/builtin/CMakeFiles/builtin.dir/src"
-CMAKE_EXTRAS_BUILD_DIR="tf-psa-crypto/extras/CMakeFiles/extras.dir"
-
 component_test_psa_crypto_key_id_encodes_owner () {
     msg "build: full config + PSA_CRYPTO_KEY_ID_ENCODES_OWNER, cmake, gcc, ASan"
     scripts/config.py full
