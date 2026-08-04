@@ -112,6 +112,50 @@ MBEDTLS_STATIC_ASSERT(
     TF_PSA_CRYPTO_MLDSA_SIGNATURE_MAX_SIZE <= PSA_MLDSA_SIGNATURE_MAX_SIZE,
     "PSA and mldsa-native disagree on the maximum ML-DSA signature size");
 
+typedef enum {
+    PKF_SEED,
+    PKF_JOINED,
+} private_key_format_t;
+
+/** Check that the length of the private key is valid, and for which format.
+ *
+ * \param bits          The ML-DSA parameter set (44, 56 or 87).
+ * \param length        The length of the private key, in bytes.
+ * \param[out] pkf      On success, the private key format.
+ *
+ * \retval #PSA_SUCCESS
+ *         Success. \p pkf contains the private key format.
+ * \retval #PSA_ERROR_INVALID_ARGUMENT
+ *         \p size is not a valid length of a private key representation.
+ * \retval #PSA_ERROR_NOT_SUPPORTED
+ *         \p bits is not a supported parameter set.
+ */
+static psa_status_t check_private_key_length(size_t bits, size_t length,
+                                             private_key_format_t *pkf)
+{
+    size_t expanded_key_length = 0;
+
+    switch (bits) {
+#if defined(TF_PSA_CRYPTO_PQCP_MLDSA_87_ENABLED)
+        case 87:
+            expanded_key_length = MLDSA87_SECRETKEYBYTES;
+            break;
+#endif
+        default:
+            return PSA_ERROR_NOT_SUPPORTED;
+    }
+
+    if (length == SEED_SIZE) {
+        *pkf = PKF_SEED;
+        return PSA_SUCCESS;
+    } else if (length == SEED_SIZE + expanded_key_length) {
+        *pkf = PKF_JOINED;
+        return PSA_SUCCESS;
+    } else {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+}
+
 static psa_status_t pqcp_to_psa_error(int ret, psa_status_t default_error)
 {
     if (ret == 0) {
@@ -135,87 +179,36 @@ static psa_status_t pqcp_to_psa_error(int ret, psa_status_t default_error)
 
 static psa_status_t seed_to_public_key(
     size_t bits,
-    const uint8_t *key_buffer, size_t key_buffer_size,
-    uint8_t *data, size_t data_size, size_t *data_length)
+    const uint8_t *key_buffer,
+    uint8_t *data)
 {
-    if (key_buffer_size != SEED_SIZE) {
-        return PSA_ERROR_INVALID_ARGUMENT;
-    }
-
     if (bits != 87) {
-        /* Other parameter sets are not supported yet. */
-        return PSA_ERROR_NOT_SUPPORTED;
+        return PSA_ERROR_CORRUPTION_DETECTED;
     }
 
-    size_t public_key_length = MLDSA87_PUBLICKEYBYTES;
-    if (data_size < public_key_length) {
-        return PSA_ERROR_BUFFER_TOO_SMALL;
-    }
-
-    psa_status_t status = tf_psa_crypto_pqcp_alloc_start();
-    if (status != PSA_SUCCESS) {
-        return status;
-    }
-    /* Beyond this point, we must go through the cleanup code. */
     uint8_t secret[TF_PSA_CRYPTO_MLDSA_EXPANDED_SECRET_MAX_SIZE];
 
     int ret = tf_psa_crypto_pqcp_mldsa87_keypair_internal(data,
                                                           secret,
                                                           key_buffer);
-    if (ret != 0) {
-        goto cleanup;
-    }
-    ret = 0;
-    *data_length = public_key_length;
 
-cleanup:
-    status = tf_psa_crypto_pqcp_alloc_done();
     mbedtls_platform_zeroize(secret, sizeof(secret));
-    if (status != PSA_SUCCESS) {
-        return status;
-    } else {
-        return pqcp_to_psa_error(ret, PSA_ERROR_HARDWARE_FAILURE);
-    }
+    return pqcp_to_psa_error(ret, PSA_ERROR_HARDWARE_FAILURE);
 }
 
 static psa_status_t export_public_from_expanded(
     size_t bits,
-    const uint8_t *key_buffer, size_t key_buffer_size,
-    uint8_t *data, size_t data_size, size_t *data_length)
+    const uint8_t *key_buffer,
+    uint8_t *data)
 {
     if (bits != 87) {
-        /* Other parameter sets are not supported yet. */
-        return PSA_ERROR_NOT_SUPPORTED;
-    }
-
-    if (key_buffer_size != SEED_SIZE + MLDSA87_SECRETKEYBYTES) {
-        return PSA_ERROR_INVALID_ARGUMENT;
+        return PSA_ERROR_CORRUPTION_DETECTED;
     }
 
     const uint8_t *sk = key_buffer + SEED_SIZE;
-
-    size_t public_key_length = MLDSA87_PUBLICKEYBYTES;
-    if (data_size < public_key_length) {
-        return PSA_ERROR_BUFFER_TOO_SMALL;
-    }
-
-    psa_status_t status = tf_psa_crypto_pqcp_alloc_start();
-    if (status != PSA_SUCCESS) {
-        return status;
-    }
-
     int ret = tf_psa_crypto_pqcp_mldsa87_pk_from_sk(data, sk);
-    status = pqcp_to_psa_error(ret, PSA_ERROR_INVALID_ARGUMENT);
-    if (status == PSA_SUCCESS) {
-        *data_length = public_key_length;
-    }
 
-    psa_status_t alloc_status = tf_psa_crypto_pqcp_alloc_done();
-    if (alloc_status != PSA_SUCCESS) {
-        return alloc_status;
-    } else {
-        return status;
-    }
+    return pqcp_to_psa_error(ret, PSA_ERROR_INVALID_ARGUMENT);
 }
 
 psa_status_t tf_psa_crypto_mldsa_export_public_key(
@@ -229,15 +222,47 @@ psa_status_t tf_psa_crypto_mldsa_export_public_key(
         return PSA_ERROR_NOT_SUPPORTED;
     }
 
-    if (key_buffer_size == SEED_SIZE) {
-        return seed_to_public_key(psa_get_key_bits(attributes),
-                                  key_buffer, key_buffer_size,
-                                  data, data_size, data_length);
-    } else {
-        return export_public_from_expanded(psa_get_key_bits(attributes),
-                                           key_buffer, key_buffer_size,
-                                           data, data_size, data_length);
+    private_key_format_t pkf;
+    psa_status_t status = check_private_key_length(psa_get_key_bits(attributes),
+                                                   key_buffer_size,
+                                                   &pkf);
+    if (status != PSA_SUCCESS) {
+        return status;
     }
+
+    size_t public_key_length = MLDSA87_PUBLICKEYBYTES;
+    if (data_size < public_key_length) {
+        return PSA_ERROR_BUFFER_TOO_SMALL;
+    }
+
+    status = tf_psa_crypto_pqcp_alloc_start();
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+    /* Beyond this point, we must go through the cleanup code. */
+
+    switch (pkf) {
+        case PKF_SEED:
+            status = seed_to_public_key(psa_get_key_bits(attributes),
+                                        key_buffer,
+                                        data);
+            break;
+        case PKF_JOINED:
+            status = export_public_from_expanded(psa_get_key_bits(attributes),
+                                                 key_buffer,
+                                                 data);
+            break;
+    }
+
+    psa_status_t alloc_status = tf_psa_crypto_pqcp_alloc_done();
+    if (alloc_status != PSA_SUCCESS) {
+        status = alloc_status;
+    }
+
+    if (status == PSA_SUCCESS) {
+        *data_length = public_key_length;
+    }
+    return status;
 }
 
 static int sign_from_expanded(
@@ -298,33 +323,39 @@ psa_status_t tf_psa_crypto_mldsa_sign_message(
     if (psa_get_key_type(attributes) != PSA_KEY_TYPE_ML_DSA_KEY_PAIR) {
         return PSA_ERROR_INVALID_ARGUMENT;
     }
-    if (psa_get_key_bits(attributes) != 87) {
-        /* Other parameter sets are not supported yet. */
-        return PSA_ERROR_NOT_SUPPORTED;
+
+    private_key_format_t pkf;
+    psa_status_t status = check_private_key_length(psa_get_key_bits(attributes),
+                                                   key_buffer_size,
+                                                   &pkf);
+    if (status != PSA_SUCCESS) {
+        return status;
     }
+
     size_t actual_signature_length = MLDSA87_BYTES;
 
     if (signature_size < actual_signature_length) {
         return PSA_ERROR_BUFFER_TOO_SMALL;
     }
 
-    psa_status_t status = tf_psa_crypto_pqcp_alloc_start();
+    status = tf_psa_crypto_pqcp_alloc_start();
     if (status != PSA_SUCCESS) {
         return status;
     }
     /* Beyond this point, we must go through the cleanup code. */
 
-    if (key_buffer_size == SEED_SIZE) {
-        status = sign_from_seed(key_buffer,
-                                message, message_length,
-                                signature, signature_length);
-    } else if (key_buffer_size == SEED_SIZE + MLDSA87_SECRETKEYBYTES) {
-        status = pqcp_to_psa_error(sign_from_expanded(key_buffer + SEED_SIZE,
-                                                      message, message_length,
-                                                      signature, signature_length),
-                                   PSA_ERROR_HARDWARE_FAILURE);
-    } else {
-        status = PSA_ERROR_INVALID_ARGUMENT;
+    switch (pkf) {
+        case PKF_SEED:
+            status = sign_from_seed(key_buffer,
+                                    message, message_length,
+                                    signature, signature_length);
+            break;
+        case PKF_JOINED:
+            status = pqcp_to_psa_error(sign_from_expanded(key_buffer + SEED_SIZE,
+                                                          message, message_length,
+                                                          signature, signature_length),
+                                       PSA_ERROR_HARDWARE_FAILURE);
+            break;
     }
 
     psa_status_t alloc_status = tf_psa_crypto_pqcp_alloc_done();
@@ -451,13 +482,17 @@ psa_status_t tf_psa_crypto_mldsa_sign_setup(
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
-    if (key_buffer_size == SEED_SIZE) {
-        /* We'll expand the key below */
-    } else if (key_buffer_size == SEED_SIZE + MLDSA87_SECRETKEYBYTES) {
+    private_key_format_t pkf;
+    status = check_private_key_length(psa_get_key_bits(attributes),
+                                      key_buffer_size,
+                                      &pkf);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    if (pkf ==  PKF_JOINED) {
         start_pure(&operation->shake, key_buffer + JOINED_TR_OFFSET);
         return PSA_SUCCESS;
-    } else {
-        return PSA_ERROR_INVALID_ARGUMENT;
     }
 
     status = tf_psa_crypto_pqcp_alloc_start();
@@ -560,34 +595,39 @@ psa_status_t tf_psa_crypto_mldsa_sign_finish(
 {
     *signature_length = 0;
 
-    if (operation->parameter_set != 87) {
-        return PSA_ERROR_NOT_SUPPORTED;
-    }
     if (signature_size < MLDSA87_BYTES) {
         return PSA_ERROR_BUFFER_TOO_SMALL;
     }
 
-    const uint8_t *private_key = NULL;
-    if (key_buffer_size == SEED_SIZE) {
-        /* Rely on setup() having stored the expanded private key in the
-         * operation structure. This is a performance/memory trade-off:
-         * we could instead re-expand the private key from the seed
-         * in \p key_buffer here. */
-        if (operation->key_length != MLDSA87_SECRETKEYBYTES) {
-            return PSA_ERROR_BAD_STATE;
-        }
-        private_key = operation->key;
-    } else if (key_buffer_size == SEED_SIZE + MLDSA87_SECRETKEYBYTES) {
-        private_key = key_buffer + SEED_SIZE;
-    } else {
-        return PSA_ERROR_INVALID_ARGUMENT;
-    }
-
-    psa_status_t status = tf_psa_crypto_pqcp_alloc_start();
+    private_key_format_t pkf;
+    psa_status_t status = check_private_key_length(operation->parameter_set,
+                                                   key_buffer_size,
+                                                   &pkf);
     if (status != PSA_SUCCESS) {
         return status;
     }
 
+    const uint8_t *private_key = NULL;
+    switch (pkf) {
+        case PKF_SEED:
+            /* Rely on setup() having stored the expanded private key in the
+             * operation structure. This is a performance/memory trade-off:
+             * we could instead re-expand the private key from the seed
+             * in \p key_buffer here. */
+            if (operation->key_length != MLDSA87_SECRETKEYBYTES) {
+                return PSA_ERROR_BAD_STATE;
+            }
+            private_key = operation->key;
+            break;
+        case PKF_JOINED:
+            private_key = key_buffer + SEED_SIZE;
+            break;
+    }
+
+    status = tf_psa_crypto_pqcp_alloc_start();
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
     /* From this point on, we must not return without calling
      * tf_psa_crypto_pqcp_alloc_done() to release the buffer allocator's
      * mutex. */
