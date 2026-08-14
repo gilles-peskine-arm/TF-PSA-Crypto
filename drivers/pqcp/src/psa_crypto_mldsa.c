@@ -314,6 +314,64 @@ psa_status_t tf_psa_crypto_mldsa_generate_key(
     return status;
 }
 
+psa_status_t tf_psa_crypto_mldsa_generate_expanded_key_pair(
+    const psa_key_attributes_t *attributes,
+    uint8_t *private_key, size_t private_key_size, size_t *private_key_length,
+    uint8_t *public_key, size_t public_key_size, size_t *public_key_length)
+{
+    /* Safe defaults */
+    *public_key_length = 0;
+    *private_key_length = 0;
+
+    if (psa_get_key_type(attributes) != PSA_KEY_TYPE_ML_DSA_KEY_PAIR) {
+        return PSA_ERROR_NOT_SUPPORTED;
+    }
+    if (psa_get_key_bits(attributes) != 87) {
+        return PSA_ERROR_NOT_SUPPORTED;
+    }
+    uint8_t *expanded_private_key = private_key + SEED_SIZE;
+    size_t prv_len = SEED_SIZE + MLDSA87_SECRETKEYBYTES;
+    size_t pub_len = MLDSA87_PUBLICKEYBYTES;
+
+    if (private_key_size < prv_len) {
+        return PSA_ERROR_BUFFER_TOO_SMALL;
+    }
+    if (public_key_size < pub_len) {
+        return PSA_ERROR_BUFFER_TOO_SMALL;
+    }
+
+    psa_status_t status = psa_generate_random(private_key, SEED_SIZE);
+    /* Now private_key contains the new seed. We don't need to zeroize
+     * the seed on failure since it's just been randomly generated. */
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    status = tf_psa_crypto_pqcp_alloc_start();
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+    /* Beyond this point, we must go through the cleanup code. */
+
+    int ret = tf_psa_crypto_pqcp_mldsa87_keypair_internal(public_key,
+                                                          expanded_private_key,
+                                                          private_key);
+
+    status = tf_psa_crypto_pqcp_alloc_done();
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+    status = pqcp_to_psa_error(ret, PSA_ERROR_HARDWARE_FAILURE);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    *private_key_length = prv_len;
+    *public_key_length = pub_len;
+    return PSA_SUCCESS;
+}
+
+
 static int sign_from_expanded(
     const uint8_t *secret,
     const uint8_t *message, size_t message_length,

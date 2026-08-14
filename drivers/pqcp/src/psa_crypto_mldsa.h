@@ -147,6 +147,44 @@ psa_status_t tf_psa_crypto_mldsa_generate_key(
     const psa_key_attributes_t *attributes,
     uint8_t *seed, size_t seed_size, size_t *seed_length);
 
+/** Generate a random ML-DSA key pair with the private key in joined format.
+ *
+ * \note To generate a key pair in the PSA standard format (i.e. just the
+ *       seed), use tf_psa_crypto_mldsa_generate_key(), then
+ *       call tf_psa_crypto_mldsa_export_public_key() if you need the
+ *       public key.
+ *
+ * \param[in] attributes        The key attributes.
+ *                              The key type must be
+ *                              #PSA_KEY_TYPE_ML_DSA_KEY_PAIR,
+ *                              and the bit-size must be one of the supported
+ *                              parameter sets (currently: only 67).
+ * \param[out] private_key      The private key in joined format:
+ *                              the concatenation of the 32-byte seed and
+ *                              the standard expanded private key format.
+ * \param private_key_size      The size of \p private_key, in bytes.
+ * \param[out] private_key_length  On success, the length of the data written
+ *                              to \p private_key.
+ * \param[out] public_key       The public key.
+ * \param public_key_size       The size of \p public_key, in bytes.
+ * \param[out] public_key_length  On success, the length of the data written
+ *                              to \p public_key.
+ *
+ * \retval #PSA_SUCCESS
+ *         Success.
+ * \retval #PSA_ERROR_NOT_SUPPORTED
+ *         The key type or size registered in \p attributes is not supported.
+ * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
+ *         Random generator failure.
+ * \retval #PSA_ERROR_BUFFER_TOO_SMALL
+ *         \p private_key_size or \p public_key_size is too small.
+ */
+psa_status_t tf_psa_crypto_mldsa_generate_expanded_key_pair(
+    const psa_key_attributes_t *attributes,
+    uint8_t *private_key, size_t private_key_size, size_t *private_key_length,
+    uint8_t *public_key, size_t public_key_size, size_t *public_key_length);
+
+
 /** Sign a message using pure-ML-DSA (without pre-hashing).
  *
  * \param[in] attributes        The key attributes.
