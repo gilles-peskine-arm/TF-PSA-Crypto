@@ -25,7 +25,8 @@
 
 #if defined(PSA_WANT_ALG_MD5) &&  \
     defined(MBEDTLS_CIPHER_MODE_CBC) &&                             \
-    defined(MBEDTLS_AES_C)
+    defined(MBEDTLS_AES_C) && \
+    !defined(MBEDTLS_DEPRECATED_REMOVED)
 #define PEM_RFC1421
 #endif /* PSA_WANT_ALG_MD5 &&
           MBEDTLS_CIPHER_MODE_CBC &&
